@@ -1,0 +1,16 @@
+openai
+
+flask
+python-dotenv
+gunicorn
+flask
+requests
+sentence-transformers
+llama-index
+llama-index-embeddings-huggingface
+llama-index-embeddings-langchain
+llama-index-embeddings-openai
+llama-index-vector-stores-lancedb
+langchain
+lancedb
+llama-index-llms-ollama
