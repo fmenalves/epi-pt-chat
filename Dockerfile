@@ -1,7 +1,8 @@
 FROM python:3.10-slim
 
 # Install dependencies
-
+RUN mkdir /transformers
+ENV TRANSFORMERS_CACHE=/transformers
 
 
 COPY app /app
