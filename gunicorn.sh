@@ -1,2 +1,3 @@
 #!/bin/sh
-gunicorn  run:app -w 2 --threads 1 -b 0.0.0.0:80    --timeout 600
+gunicorn  run:app -w 2 --threads 1 -b 0.0.0.0:80    --timeout 600 --log-level debug
+ 
