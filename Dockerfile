@@ -2,7 +2,7 @@ FROM python:3.10-slim
 
 # Install dependencies
 RUN mkdir /transformers
-ENV TRANSFORMERS_CACHE=/transformers
+ENV HF_HOME=/transformers
 
 
 COPY app /app
