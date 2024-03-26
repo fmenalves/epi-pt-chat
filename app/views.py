@@ -13,12 +13,8 @@ def home():
     if request.method == "POST":
         msg = request.form.get("msg")
         print(msg)
-        enhanced_prompt = (
-            msg
-            + " "
-            + ".Responder em Português de Portugal. Sem nenhuma palavra em português do brasil."
-        )
-        answer = present_result(enhanced_prompt)
+
+        answer = present_result(msg)
         print(answer)
         details = []
         for key, value in answer["metadata"].items():

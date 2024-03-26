@@ -16,8 +16,9 @@ from llama_index.core.node_parser import SentenceSplitter
 from llama_index.core.indices.postprocessor import SentenceTransformerRerank
 from dotenv import load_dotenv
 import os
-from support import text_qa_template, refine_template, create_filters
+from app.support import text_qa_template, refine_template, create_filters
 import qdrant_client
+import pandas as pd
 
 load_dotenv()
 
@@ -29,8 +30,9 @@ LLM_URL = os.getenv("LLM_URL")
 #    # This is the default and can be omitted
 #    api_key=os.getenv("OPENAI_KEY"),
 # )
-# metadatasource = pd.read_csv("ptdata.csv", delimiter=",")
+metadatasource = pd.read_csv("finaldbpt2.csv", delimiter=",")
 embed_model_name = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+embed_model_name = "sentence-transformers/all-mpnet-base-v2"
 client = qdrant_client.QdrantClient(URI_BD)
 
 
@@ -103,7 +105,7 @@ def build_rag_pipeline(query, metadatasource):
 def present_result(query):
     start = timeit.default_timer()
 
-    rag_chain = build_rag_pipeline()
+    rag_chain = build_rag_pipeline(query, metadatasource)
 
     step = 0
     answer = False
