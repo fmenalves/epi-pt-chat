@@ -67,7 +67,7 @@ def build_rag_pipeline(query, metadatasource):
         temperature=0,
         request_timeout=120,
     )
-    # llm=OpenAI(api_key="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",model="gpt-4")
+    # llm=OpenAI(model="gpt-4")
     print("Building index...")
     index = retrieve_index(client, llm, index_name)
     print("Constructing query engine...")
