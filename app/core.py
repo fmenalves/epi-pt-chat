@@ -26,6 +26,7 @@ load_dotenv()
 index_name = os.getenv("INDEX_NAME")
 URI_BD = os.getenv("URI_BD")
 LLM_URL = os.getenv("LLM_URL")
+OPENAI_KEY = os.getenv("OPENAI_KEY")
 # client = OpenAI(
 #    # This is the default and can be omitted
 #    api_key=os.getenv("OPENAI_KEY"),
@@ -61,13 +62,15 @@ def retrieve_index(client, llm, index_name):
 
 
 def build_rag_pipeline(query, metadatasource):
-    llm = Ollama(
-        model="mistral",
-        base_url=LLM_URL,
-        temperature=0,
-        request_timeout=120,
-    )
-    # llm=OpenAI(model="gpt-4")
+    if OPENAI_KEY is not None:
+        llm = OpenAI(temperature=0, api_key=OPENAI_KEY, model="gpt-4")
+    else:
+        llm = Ollama(
+            model="mistral",
+            base_url=LLM_URL,
+            temperature=0,
+            request_timeout=120,
+        )
     print("Building index...")
     index = retrieve_index(client, llm, index_name)
     print("Constructing query engine...")
