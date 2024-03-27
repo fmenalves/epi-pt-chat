@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>HL7 Validator</title>
+    <title>Conversa RCM</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 <style>
     .hidden {
@@ -28,11 +28,11 @@
 <div class="container-fluid px-5">
     <div class="row align-items-center">
         <div class="col-3">
-            <img style="float:left; width:80%;" src="/static/pdh.jpeg" class="rounded float-left" alt="GH">
+            <img style="float:left; width:80%;" src="/static/P_logo_cor_vertical.png" class="rounded float-left" alt="PDH">
         </div>
         <div class="col-9">
-            <h1>Pergunte coisas aos medicamentos portugeses.</h1>
-            <p>Criámos uma inteligência artificilar que responde em função dos RCMs dos medicamentos disponiveis em Portugal</p>
+            <h1>Pergunte coisas aos medicamentos portugueses.</h1>
+            <p>Criámos uma inteligência artificial que responde em função dos RCMs dos medicamentos disponiveis em Portugal</p>
         </div>
 
     </div>
@@ -56,12 +56,12 @@
     <br>
 
     {% if answer %}
-    <h2>Resposta:</h2>
+    <h2>Resposta</h2>
     <div class="alert alert-primary" role="alert">
         {{ answer }}
         </div>
 {% if details%}
-<p>Documentos usados: </p>
+<p>Documentos usados para procurar a resposta: </p>
 <ul>
 {% for detail in details %}
 <li>{{detail}}</li>
