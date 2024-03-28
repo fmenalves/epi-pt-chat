@@ -20,6 +20,10 @@
         border: 1px solid #ccc;
         z-index: 1000;
       }
+      .inline-radio {
+    display: inline-block;
+    margin-right: 10px; /* Ajuste o espaçamento conforme necessário */
+}
 </style>
 
 </head>
@@ -57,11 +61,44 @@
 
     {% if answer %}
     <h2>Resposta</h2>
-    <div class="alert alert-primary" role="alert">
+      <!-- Seu conteúdo existente -->
+      
+   
+    <div  id="resposta" class="alert alert-primary" role="alert">
         {{ answer }}
         </div>
+        <form method="POST" role="form" action="/evaluate">
+
+        <div class="form-group">
+          <p>De 0 (inútil ou errada) até 5 (muito útil) quão útil foi esta resposta?</p>
+          <div class="inline-radio">
+                  <input type="radio" id="hipotese1" name="hipotese" value="Hipotese1">
+                  <label for="hipotese1">1</label>
+              </div>
+              <div class="inline-radio">
+                <input type="radio" id="hipotese2" name="hipotese" value="Hipotese2">
+                  <label for="hipotese2"> 2</label>
+              </div>
+              <div class="inline-radio">
+                <input type="radio" id="hipotese3" name="hipotese" value="Hipotese3">
+                  <label for="hipotese3"> 3</label>
+              </div>
+              <div class="inline-radio">
+                <input type="radio" id="hipotese4" name="hipotese" value="Hipotese4">
+                  <label for="hipotese4"> 4</label>
+              </div>
+              <div class="inline-radio">
+                <input type="radio" id="hipotese5" name="hipotese" value="Hipotese5">
+                  <label for="hipotese5"> 5</label>
+              </div>
+          </div>
+      <button id="avaliar" type="submit" class="btn btn-primary">Confirmar</button>
+  </form>
+  <div id="notificacao" class="alert alert-success fade show" role="alert" style="display:none; position: fixed; bottom: 20px; right: 20px;">
+    Dados guardados com sucesso!
+</div>
 {% if details%}
-<p>Documentos usados para procurar a resposta: </p>
+<h4>Documentos usados para procurar a resposta </h4>
 <ul>
 {% for detail in details %}
 <li>{{detail}}</li>
@@ -75,11 +112,7 @@
 </body>
 <footer>
 </footer>
-<script>
-    function clearContent() {
-        document.getElementById('exampleFormControlTextarea1').value = '';
-    }
-    </script>
+
     <script>
 document.getElementById('fetchButton').addEventListener('click', function() {
   // Show the popup
@@ -112,5 +145,56 @@ document.getElementById('fetchButton').addEventListener('click', function() {
     document.getElementById('popup').classList.add('hidden');
   });
 });
-    </script>
+</script>
+
+<script>
+  document.getElementById('avaliar').addEventListener('click', function(event) {
+      // Opção: Previne o envio do formulário se necessário
+       event.preventDefault();
+  
+      // Captura os dados do formulário
+      var formData = new FormData();
+      var hipoteseSelecionada = document.querySelector('input[name="hipotese"]:checked').value;
+      formData.append('hipotese', hipoteseSelecionada);
+
+      var pergunta =document.getElementById('exampleFormControlTextarea1').value;
+      var resposta = document.getElementById('resposta').innerText;
+      formData.append('pergunta', pergunta);
+      formData.append('resposta', resposta);
+
+      // Envia os dados para a rota desejada com fetch
+      fetch('/evaluate', {
+          method: 'POST',
+          body: formData
+      })
+      .then(response => {
+          if (!response.ok) {
+              throw new Error('A rede respondeu com um erro');
+          }
+          return response.json(); // Ou .text() se você estiver retornando texto
+      })
+      .then(data => {
+          // Processa a resposta aqui. Por exemplo, exibindo um alerta ou atualizando a página
+          console.log(data);
+      })
+      .catch(error => {
+          console.error('Erro:', error);
+      });
+  
+      // Mostra a notificação
+      var notificacao = document.getElementById('notificacao');
+      notificacao.style.display = 'block';
+  
+      // Esconde a notificação depois de 3 segundos (3000 milissegundos)
+      setTimeout(function() {
+          notificacao.style.display = 'none';
+      }, 3000);
+  });
+  </script>
+
+    <script>
+      function clearContent() {
+          document.getElementById('exampleFormControlTextarea1').value = '';
+      }
+      </script>
 </html>

@@ -6,6 +6,7 @@ from llama_index.llms.openai import OpenAI
 import timeit
 import time
 from llama_index.vector_stores.qdrant import QdrantVectorStore
+from app import app
 
 from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.llms.ollama import Ollama
@@ -16,7 +17,12 @@ from llama_index.core.node_parser import SentenceSplitter
 from llama_index.core.indices.postprocessor import SentenceTransformerRerank
 from dotenv import load_dotenv
 import os
-from app.support import text_qa_template, refine_template, create_filters
+from app.support import (
+    text_qa_template,
+    refine_template,
+    get_filters_qdrant,
+    generate_queries,
+)
 import qdrant_client
 import pandas as pd
 
@@ -61,10 +67,11 @@ def retrieve_index(client, llm, index_name):
     return index
 
 
-def build_rag_pipeline(query, metadatasource):
+def build_rag_pipeline(products, metadatasource):
     if OPENAI_KEY is not None:
         llm = OpenAI(temperature=0, api_key=OPENAI_KEY, model="gpt-4")
     else:
+        # pass
         llm = Ollama(
             model="mistral",
             base_url=LLM_URL,
@@ -74,17 +81,22 @@ def build_rag_pipeline(query, metadatasource):
     print("Building index...")
     index = retrieve_index(client, llm, index_name)
     print("Constructing query engine...")
-    filters = create_filters(query, metadatasource)
-    print(filters)
+    filters_qdrant = get_filters_qdrant(
+        products=products, metadatasource=metadatasource
+    )
+    print(filters_qdrant)
+    app.logger.info("Filtros: {}".format(print(filters_qdrant)))
+
     retriever = VectorIndexRetriever(
+        vector_store_kwargs={"qdrant_filters": filters_qdrant},
         index=index,
-        filters=filters,
-        similarity_top_k=20,
+        # filters=filters,
+        similarity_top_k=30,
     )
     # configure response synthesizer
     # response_synthesizer = get_response_synthesizer()
     reranker = SentenceTransformerRerank(
-        model="cross-encoder/ms-marco-MiniLM-L-2-v2", top_n=10
+        model="cross-encoder/ms-marco-MiniLM-L-2-v2", top_n=15
     )
     #   reranker = CohereRerank(top_n=10)
     # assemble query engine
@@ -108,30 +120,20 @@ def build_rag_pipeline(query, metadatasource):
 def present_result(query):
     start = timeit.default_timer()
 
-    rag_chain = build_rag_pipeline(query, metadatasource)
+    products, add_info = generate_queries(query)
 
-    step = 0
-    answer = False
-    while not answer:
-        print("prompts", rag_chain.get_prompts())
+    print("Detected products:", products)
+    rag_chain = build_rag_pipeline(products=products, metadatasource=metadatasource)
+    nquery = (
+        query
+        + "\n---------\nContext and more information about the products:\n"
+        + add_info
+    )
 
-        step += 1
-        if step > 1:
-            print("Refining answer...")
-            # add wait time, before refining to avoid spamming the server
-            time.sleep(5)
-        if step > 3:
-            # if we have refined 3 times, and still no answer, break
-            answer = "No answer found."
-            break
-        print("Retrieving answer...")
+    app.logger.info("Pergunta melhorada: {}".format(nquery))
 
-        # answer = get_rag_response(query, rag_chain, debug=True)
-        answer = rag_chain.query(query)
-    #  print(answer.response)
+    answer = rag_chain.query(nquery)
     end = timeit.default_timer()
-
-    print(answer)
 
     return {
         "response": answer.response,

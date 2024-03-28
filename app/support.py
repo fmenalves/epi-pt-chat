@@ -1,9 +1,18 @@
 from llama_index.core.vector_stores.types import (
     MetadataFilters,
     MetadataFilter,
+    ExactMatchFilter,
 )
 from llama_index.core import PromptTemplate
+from qdrant_client.http.models import Filter, FieldCondition, MatchValue, MatchAny
+from llama_index.llms.openai import OpenAI
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
+
+
+OPENAI_KEY = os.getenv("OPENAI_KEY")
 
 text_qa_template_str = (
     "Context information is"
@@ -31,65 +40,116 @@ refine_template_str = (
 refine_template = PromptTemplate(refine_template_str)
 
 
-# print(list(map(' '.join, zip(words[:-1], words[1:]))))
-def create_filters(query, metadatasource):
-    f = []
-    black_list = ["comprimido", "cápsula"]
-    words = query.replace("?", "").split()
-    for w2 in list(map(" ".join, zip(words[:-1], words[1:]))):
-        if metadatasource["Subs"].str.contains(w2, case=False).any():
-            # print("found")
-            print(w2, "subs2")
+def filter_lamma(metadatasource, products):
+    filters = []
+    f = create_filters(products=products, metadatasource=metadatasource)
+    if len(f["Nome_Comercial"]) > 0:
+        filters.append(
+            ExactMatchFilter(key="Nome_Comercial", value=list(set(f["Nome_Comercial"])))
+        )
+    if len(f["Substancia"]) > 0:
+        filters.append(
+            ExactMatchFilter(key="Substancia", value=list(set(f["Substancia"])))
+        )
+    # return f
+    if len(filters) == 0:
+        return MetadataFilters(filters=None)
+    if len(filters) == 1:
+        return MetadataFilters(filters=filters)
+    return MetadataFilters(filters=filters, condition="or")
 
-            f.append(MetadataFilter(key="substancia", value=w2, operator="in"))
-            break
-    for w in words:
-        if (
-            len(w) > 5
-            and metadatasource["Subs"].str.contains(w, case=False).any()
-            and w not in black_list
+
+def get_filters_qdrant(metadatasource, products):
+    filters = []
+    f = create_filters(products=products, metadatasource=metadatasource)
+
+    if len(f["Nome_Comercial"]) > 0:
+        filters.append(
+            FieldCondition(
+                key="Nome_Comercial",
+                match=MatchAny(any=list(set(f["Nome_Comercial"]))),
+            )
+        )
+    if len(f["Substancia"]) > 0:
+        filters.append(
+            FieldCondition(
+                key="Substancia",
+                match=MatchAny(any=list(set(f["Nome_Comercial"]))),
+            )
+        )
+    # return f
+    if len(filters) == 0:
+        return Filter(should=[])
+    if len(filters) > 0:
+        return Filter(should=filters)
+
+
+def create_filters(products, metadatasource):
+    f = {"Nome_Comercial": [], "Substancia": []}
+    for word in products.split(","):
+        # print(word)
+        word = word.strip()
+        if any(
+            word.lower() == item.lower() for item in metadatasource["Nome Comercial"]
         ):
             # print("found")
-            print(w, "subs")
-            f.append(MetadataFilter(key="substancia", value=w, operator="in"))
-            break
-    for w2 in list(map(" ".join, zip(words[:-1], words[1:]))):
-        if metadatasource["Nome Comercial"].str.contains(w2, case=False).any():
+            val = metadatasource[
+                [
+                    word.lower() == item.lower()
+                    for item in metadatasource["Nome Comercial"]
+                ]
+            ]["Nome Comercial"].values
+            print(word, "comer")
+            for v in val:
+                f["Nome_Comercial"].append(v)
+        #  f.append(MetadataFilter(key="Nome_Comercial", value=val, operator="=="))
+        elif any(word.lower() == str(item).lower() for item in metadatasource["Subs"]):
+            val = metadatasource[
+                [word.lower() == str(item).lower() for item in metadatasource["Subs"]]
+            ]["Subs"].values
+
+            for v in val:
+                # f[v] = "Substancia"
+                f["Substancia"].append(v)
+
+        if metadatasource["Nome Comercial"].str.contains(word, case=False).any():
             # print("found")
-            print(w2, "comer")
-            f.append(MetadataFilter(key="Nome_Comercial", value=w2, operator="in"))
-            break
-    for w in words:
-        if (
-            len(w) > 5
-            and metadatasource["Nome Comercial"].str.contains(w, case=False).any()
-            and w not in black_list
+            val = metadatasource[
+                metadatasource["Nome Comercial"].str.contains(word, case=False)
+            ]["Nome Comercial"].values
+            print(word, "comer")
+            for v in val:
+                # f[v] = "Nome_Comercial"
+                f["Nome_Comercial"].append(v)
+
+        #  f.append(MetadataFilter(key="Nome_Comercial", value=val, operator="=="))
+        elif (
+            metadatasource[metadatasource["Subs"].notna()]["Subs"]
+            .str.contains(word, case=False)
+            .any()
         ):
-            # print("found")
-            print(w, "Nome Comercial")
-            f.append(MetadataFilter(key="Nome_Comercial", value=w, operator="in"))
-            break
-    return MetadataFilters(filters=f, condition="or")
+            val = metadatasource[
+                metadatasource["Subs"].notna()
+                & metadatasource["Subs"].str.contains(word, case=False)
+            ]["Subs"].values
+            for v in val:
+                # f[v] = "Substancia"
+                f["Substancia"].append(v)
+    return f
 
 
-def get_metadata(metadatasource, nfilename, file_path):
-    extra_metadata = metadatasource[metadatasource["NewFilename"] == nfilename].values
+def generate_queries(query: str):
+    query_gen_str = """You are a helpful assistant that can provide information about drugs. Please comercial drug names and/or substances, separated by a comma. You will return only the names separeted by comma and nothing more. The text to analyse is {query}."""
+    query_gen_prompt1 = PromptTemplate(query_gen_str)
+    query_gen_str2 = """You are a helpful assistant that can provide information about drugs. Please provide information additional about the drugs detected in the query. Important things to mention are active principles, side effects, drug class and interactions with other drugs for each detected drug.
+Query: {query}
+"""
+    query_gen_prompt2 = PromptTemplate(query_gen_str2)
 
-    if len(extra_metadata) == 0:
-        nfilename = file_path.split("/")[-1][:-4]
-        extra_metadata = metadatasource[
-            metadatasource["NewFilename"] == nfilename
-        ].values
+    llm = OpenAI(api_key=OPENAI_KEY, model="gpt-3.5-turbo")
 
-    if len(extra_metadata) == 0:
-        print("No metadata found for", nfilename)
-        extra_metadata = [["", "", "", "", "", ""]]
-    ff = {
-        "Nome_Comercial": extra_metadata[0][1],
-        "substancia": extra_metadata[0][2],
-        "Forma_Farmaceutica": extra_metadata[0][3],
-        "Dosagem": extra_metadata[0][4],
-        "Titular_AIM": extra_metadata[0][5],
-    }
+    products = llm.predict(query_gen_prompt1, query=query)
+    # assume LLM proper put each query on a newline
 
-    return ff
+    add_info = llm.predict(query_gen_prompt2, query=query)
+    return products.replace(".", ""), add_info
