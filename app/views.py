@@ -14,14 +14,8 @@ def home():
         msg = request.form.get("msg")
         print(msg)
         app.logger.info("Pergunta: {}".format(msg))
-        # answer = present_result(msg)
-        answer = {
-            "response": "A resposta é 42.",
-            "metadata": {
-                "42": {"source": "https://www.google.com", "page": 1},
-                "43": {"source": "https://www.google.com", "page": 2},
-            },
-        }
+        answer = present_result(msg)
+
         print(answer)
         app.logger.info("Resposta: {}".format(answer))
 
