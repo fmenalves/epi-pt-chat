@@ -21,4 +21,4 @@ if __name__ == "__main__":
     console_handler.setLevel(logging.INFO)
     app.logger.addHandler(file_handler)
     app.logger.setLevel(logging.INFO)
-    app.run()
+    app.run(host="0.0.0.0")
