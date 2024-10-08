@@ -8,8 +8,12 @@ from qdrant_client.http.models import Filter, FieldCondition, MatchValue, MatchA
 from llama_index.llms.openai import OpenAI
 from dotenv import load_dotenv
 import os
+from llama_index.llms.ollama import Ollama
 
 load_dotenv()
+
+
+LLM_URL = os.getenv("LLM_URL")
 
 
 OPENAI_KEY = os.getenv("OPENAI_KEY")
@@ -145,8 +149,16 @@ def generate_queries(query: str):
 Query: {query}
 """
     query_gen_prompt2 = PromptTemplate(query_gen_str2)
-
-    llm = OpenAI(api_key=OPENAI_KEY, model="gpt-3.5-turbo")
+    if OPENAI_KEY is not None:
+        llm = OpenAI(api_key=OPENAI_KEY, model="gpt-3.5-turbo")
+    else:
+        # pass
+        llm = Ollama(
+            model="llama3.1:70b",
+            base_url=LLM_URL,
+            temperature=0,
+            request_timeout=120,
+        )
 
     products = llm.predict(query_gen_prompt1, query=query)
     # assume LLM proper put each query on a newline

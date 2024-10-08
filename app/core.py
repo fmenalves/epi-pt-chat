@@ -13,8 +13,11 @@ from llama_index.llms.ollama import Ollama
 from llama_index.core.retrievers import VectorIndexRetriever
 from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.core.node_parser import SentenceSplitter
+from llama_index.postprocessor.cohere_rerank import CohereRerank
 
-from llama_index.core.indices.postprocessor import SentenceTransformerRerank
+from llama_index.core.indices.postprocessor import (
+    SentenceTransformerRerank,
+)
 from dotenv import load_dotenv
 import os
 from app.support import (
@@ -27,7 +30,9 @@ import qdrant_client
 import pandas as pd
 
 load_dotenv()
+# pip install cohere
 
+cohere_api_key = os.getenv("COHERE_API_KEY")
 
 index_name = os.getenv("INDEX_NAME")
 URI_BD = os.getenv("URI_BD")
@@ -73,7 +78,7 @@ def build_rag_pipeline(products, metadatasource):
     else:
         # pass
         llm = Ollama(
-            model="mistral",
+            model="llama3.1:70b",
             base_url=LLM_URL,
             temperature=0,
             request_timeout=120,
@@ -95,10 +100,10 @@ def build_rag_pipeline(products, metadatasource):
     )
     # configure response synthesizer
     # response_synthesizer = get_response_synthesizer()
-    reranker = SentenceTransformerRerank(
-        model="cross-encoder/ms-marco-MiniLM-L-2-v2", top_n=15
-    )
-    #   reranker = CohereRerank(top_n=10)
+    # reranker = SentenceTransformerRerank(
+    #    model="cross-encoder/ms-marco-MiniLM-L-2-v2", top_n=15
+    # )
+    reranker = CohereRerank(api_key=cohere_api_key, top_n=15)
     # assemble query engine
     query_engine = RetrieverQueryEngine(
         retriever=retriever,  # response_mode="compact",

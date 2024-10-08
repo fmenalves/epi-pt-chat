@@ -1,0 +1,14 @@
+[Unit]
+Description=My Python Script Service
+After=network.target
+
+[Service]
+ExecStart=/home/joaoalmeida/ig-uploader-api/iguploaderapi/bin/python /home/joaoalmeida/ig-uploader-api/run.py
+WorkingDirectory=/home/joaoalmeida/ig-uploader-api
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=joaoalmeida
+
+[Install]
+WantedBy=multi-user.target

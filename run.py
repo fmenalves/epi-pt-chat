@@ -4,8 +4,8 @@ import logging
 from logging.handlers import RotatingFileHandler
 
 if __name__ == "__main__":
-    print("uere")
-    print("h232")
+    #    print("uere")
+    #    print("h232")
     if not os.path.exists("logs"):
         os.mkdir("logs")
     file_handler = RotatingFileHandler(
@@ -21,4 +21,4 @@ if __name__ == "__main__":
     console_handler.setLevel(logging.INFO)
     app.logger.addHandler(file_handler)
     app.logger.setLevel(logging.INFO)
-    app.run(host="0.0.0.0")
+    app.run(host="0.0.0.0", port=5001)
