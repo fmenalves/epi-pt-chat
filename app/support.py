@@ -78,7 +78,7 @@ def get_filters_qdrant(metadatasource, products):
         filters.append(
             FieldCondition(
                 key="Substancia",
-                match=MatchAny(any=list(set(f["Nome_Comercial"]))),
+                match=MatchAny(any=list(set(f["Substancia"]))),
             )
         )
     # return f

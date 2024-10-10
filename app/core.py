@@ -4,7 +4,6 @@ from langchain.embeddings.huggingface import HuggingFaceEmbeddings
 from llama_index.core import Settings
 from llama_index.llms.openai import OpenAI
 import timeit
-import time
 from llama_index.vector_stores.qdrant import QdrantVectorStore
 from app import app
 
@@ -89,9 +88,19 @@ def build_rag_pipeline(products, metadatasource):
     filters_qdrant = get_filters_qdrant(
         products=products, metadatasource=metadatasource
     )
-    print(filters_qdrant)
-    app.logger.info("Filtros: {}".format(print(filters_qdrant)))
+    print("filtro", filters_qdrant)
+    app.logger.info("Filtros: {}".format(filters_qdrant))
 
+    results = client.search(
+        collection_name=index_name,
+        query_vector=[0.1] * 768,
+        limit=10,
+        query_filter=filters_qdrant,
+    )
+
+    # Check if results are found
+    if len(results) == 0:
+        filters_qdrant = None
     retriever = VectorIndexRetriever(
         vector_store_kwargs={"qdrant_filters": filters_qdrant},
         index=index,
