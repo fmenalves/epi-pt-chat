@@ -3,8 +3,8 @@ Description=My Python Script Service
 After=network.target
 
 [Service]
-ExecStart=/home/joaoalmeida/ig-uploader-api/iguploaderapi/bin/python /home/joaoalmeida/ig-uploader-api/run.py
-WorkingDirectory=/home/joaoalmeida/ig-uploader-api
+ExecStart=/home/jalmeida/miniconda3/envs/ragepi/bin/python /home/jalmeida/epi-pt-chat/run.py
+WorkingDirectory=/home/jalmeida/epi-pt-chat
 StandardOutput=inherit
 StandardError=inherit
 Restart=always
