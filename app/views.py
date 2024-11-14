@@ -1,7 +1,7 @@
 from flask import render_template, request
 
 from app import app
-from app.core import present_result, present_result_demo
+from app.core import present_result, present_result_filtered
 
 # http://flask.pocoo.org/docs/1.0/
 VERSION = "0.0.4"
@@ -50,8 +50,10 @@ def demo():
         print(request.form)
         medication = request.form.get("medicamento")
         print(msg)
+        strength = request.form.get("dosagem")
+
         app.logger.info("Pergunta: {}".format(msg))
-        answer = present_result_demo(msg, medication)
+        answer = present_result_filtered(msg, medication, strength)
 
         print(answer)
         app.logger.info("Resposta: {}".format(answer))

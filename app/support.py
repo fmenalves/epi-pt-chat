@@ -1,14 +1,11 @@
-from llama_index.core.vector_stores.types import (
-    MetadataFilters,
-    MetadataFilter,
-    ExactMatchFilter,
-)
-from llama_index.core import PromptTemplate
-from qdrant_client.http.models import Filter, FieldCondition, MatchValue, MatchAny
-from llama_index.llms.openai import OpenAI
-from dotenv import load_dotenv
 import os
+
+from dotenv import load_dotenv
+from llama_index.core import PromptTemplate
+from llama_index.core.vector_stores.types import ExactMatchFilter, MetadataFilters
 from llama_index.llms.ollama import Ollama
+from llama_index.llms.openai import OpenAI
+from qdrant_client.http.models import FieldCondition, Filter, MatchAny
 
 load_dotenv()
 
@@ -86,6 +83,25 @@ def get_filters_qdrant(metadatasource, products):
         return Filter(should=[])
     if len(filters) > 0:
         return Filter(should=filters)
+
+
+def get_filters_qdrant_filtered(metadatasource, products, strength):
+    filters = []
+    print(products, strength)
+    filters.append(
+        FieldCondition(key="Nome_Comercial", match=MatchAny(any=[products])),
+    )
+
+    filters.append(
+        FieldCondition(
+            key="Dosagem",
+            match=MatchAny(any=[strength]),
+        )
+    )
+    if len(filters) == 0:
+        return Filter(should=[])
+    if len(filters) > 0:
+        return Filter(must=filters)
 
 
 def create_filters(products, metadatasource):

@@ -23,6 +23,7 @@ from app import app
 from app.support import (
     generate_queries,
     get_filters_qdrant,
+    get_filters_qdrant_filtered,
     refine_template,
     text_qa_template,
 )
@@ -70,7 +71,7 @@ def retrieve_index(client, llm, index_name):
     return index
 
 
-def build_rag_pipeline(products, metadatasource):
+def build_rag_pipeline(products, metadatasource, strength=None):
     if OPENAI_KEY is not None:
         llm = OpenAI(temperature=0, api_key=OPENAI_KEY, model="gpt-4")
     else:
@@ -84,9 +85,14 @@ def build_rag_pipeline(products, metadatasource):
     print("Building index...")
     index = retrieve_index(client, llm, index_name)
     print("Constructing query engine...")
-    filters_qdrant = get_filters_qdrant(
-        products=products, metadatasource=metadatasource
-    )
+    if strength:  # demo
+        filters_qdrant = get_filters_qdrant_filtered(
+            products=products, metadatasource=metadatasource, strength=strength
+        )
+    else:  # not demo
+        filters_qdrant = get_filters_qdrant(
+            products=products, metadatasource=metadatasource
+        )
     print("filtro", filters_qdrant)
     app.logger.info("Filtros: {}".format(filters_qdrant))
 
@@ -156,22 +162,24 @@ def present_result(query):
     }
 
 
-def present_result_demo(query, product):
+def present_result_filtered(query, product, dosagem):
     start = timeit.default_timer()
 
-    _, add_info = generate_queries(query)
+    # _, add_info = generate_queries(query)
 
     # print("Detected products:", products)
-    rag_chain = build_rag_pipeline(products=product, metadatasource=metadatasource)
-    nquery = (
-        query
-        + "\n---------\nContext and more information about the products:\n"
-        + add_info
+    rag_chain = build_rag_pipeline(
+        products=product, metadatasource=metadatasource, strength=dosagem
     )
+    # nquery = (
+    #     query
+    #     + "\n---------\nContext and more information about the products:\n"
+    #     + add_info
+    # )
 
-    app.logger.info("Pergunta melhorada: {}".format(nquery))
+    app.logger.info("Pergunta melhorada: {}".format(query))
 
-    answer = rag_chain.query(nquery)
+    answer = rag_chain.query(query)
     end = timeit.default_timer()
 
     return {
