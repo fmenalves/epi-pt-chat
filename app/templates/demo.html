@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Conversa RCM</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<style>
+    .hidden {
+        display: none;
+      }
+      
+      #popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 20px;
+        background-color: #f9f9f9;
+        border: 1px solid #ccc;
+        z-index: 1000;
+      }
+      .inline-radio {
+    display: inline-block;
+    margin-right: 10px; /* Ajuste o espaçamento conforme necessário */
+}
+</style>
+
+</head>
+
+<body>
+<div class="container-fluid px-5">
+    <div class="row align-items-center">
+        <div class="col-3">
+            <img style="float:left; width:80%;" src="/static/P_logo_cor_vertical.png" class="rounded float-left" alt="PDH">
+        </div>
+        <div class="col-9">
+            <h1>Coloque as suas dúvidas aos medicamentos portugueses.</h1>
+            <p>Criámos uma inteligência artificial que responde em função dos RCMs dos medicamentos disponiveis em Portugal. Esta demo permite colocar perguntas a 10 medicamentos. Envie email para geral @ pharmadatahub.com para mais informações.</p>
+        </div>
+
+    </div>
+
+    <form method="POST" role="form" action="/demo">
+      <div class="form-group">
+            <label for="exampleFormControlTextarea1">
+                <h3>Este formulário permite fazer perguntas aos RCMs</h3>
+            </label>
+                     <!-- Dropdown Menu with hidden data -->
+         <div class="form-group">
+          <label for="medicamentoSelect">Selecione um medicamento:</label>
+          <select class="form-control" id="medicamentoSelect" name="medicamento" onchange="updateDataInfo()">
+              <option value="Rinvoq" dosagem="15 mg">Rinvoq 15 mg Comprimido de libertação prolongada</option>
+              <option value="Ozempic" dosagem="0.5 mg/0.37 ml">Ozempic 0.5 mg/0.37 ml Solução injetável em caneta pré-cheia</option>
+              <option value="Paclitaxel Accord MG" dosagem="6 mg/ml">Paclitaxel Accord MG 6 mg/ml Concentrado para solução para perfusão</option>
+              <option value="Diovan" dosagem="80 mg">Diovan 80 mg Comprimido revestido por película</option>
+              <option value="Influvac Tetra" dosagem="Associação">Influvac Tetra Associação Suspensão injetável em seringa pré-cheia</option>
+              <option value="6" dosagem="Dados do medicamento 6">Medicamento 6</option>
+              <option value="Triticum" dosagem="100 mg">Triticum 100 mg Comprimido revestido por película</option>
+              <option value="Depakine" dosagem="40 mg/ml">Depakine 40 mg/ml Xarope</option>
+              <option value="Lenalidomida Tecnigen MG" dosagem="10 mg">Lenalidomida Tecnigen MG 10 mg Cápsula</option>
+              <option value="Ciplox MG" dosagem="500 mg">Ciplox MG 500 mg Comprimido revestido por película</option>
+          </select>
+      </div>
+
+            <div id="popup" class="hidden">
+                <p>A procurar informação e a criar a resposta, aguarde...</p>
+              </div>
+            <textarea class="form-control" id="exampleFormControlTextarea1" name="msg" rows="3">{{ msg }}</textarea>
+        </div>
+
+
+        <input type="hidden" id="dosagem" name="dosagem">
+
+        <button id="fetchButton" type="submit" class="btn btn-primary">Submeter</button>
+        <button type="button" class="btn btn-secondary" onclick="clearContent()">Limpar</button>
+       
+
+    </form>
+    <br>
+
+    {% if answer %}
+    <h2>Resposta</h2>
+      <!-- Seu conteúdo existente -->
+      
+   
+    <div  id="resposta" class="alert alert-primary" role="alert">
+        {{ answer }}
+        </div>
+        <form method="POST" role="form" action="/evaluate">
+
+        <div class="form-group">
+          <p>De 0 (inútil ou errada) até 5 (muito útil) quão útil foi esta resposta?</p>
+          <div class="inline-radio">
+                  <input type="radio" id="hipotese1" name="hipotese" value="Hipotese1">
+                  <label for="hipotese1">1</label>
+              </div>
+              <div class="inline-radio">
+                <input type="radio" id="hipotese2" name="hipotese" value="Hipotese2">
+                  <label for="hipotese2"> 2</label>
+              </div>
+              <div class="inline-radio">
+                <input type="radio" id="hipotese3" name="hipotese" value="Hipotese3">
+                  <label for="hipotese3"> 3</label>
+              </div>
+              <div class="inline-radio">
+                <input type="radio" id="hipotese4" name="hipotese" value="Hipotese4">
+                  <label for="hipotese4"> 4</label>
+              </div>
+              <div class="inline-radio">
+                <input type="radio" id="hipotese5" name="hipotese" value="Hipotese5">
+                  <label for="hipotese5"> 5</label>
+              </div>
+          </div>
+      <button id="avaliar" type="submit" class="btn btn-primary">Confirmar</button>
+  </form>
+  <div id="notificacao" class="alert alert-success fade show" role="alert" style="display:none; position: fixed; bottom: 20px; right: 20px;">
+    Dados guardados com sucesso!
+</div>
+{% if details%}
+<h4>Documentos usados para procurar a resposta </h4>
+<ul>
+{% for detail in details %}
+<li>{{detail}}</li>
+{% endfor %}
+</ul>
+{% endif %}
+
+    {% endif %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+</body>
+<footer>
+</footer>
+
+    <script>
+document.getElementById('fetchButton').addEventListener('click', function() {
+  // Show the popup
+  document.getElementById('popup').classList.remove('hidden');
+
+  const formData = new FormData(event.target);
+
+  // Perform a POST request
+  fetch('/', {
+    method: 'POST', // Specify the method
+    body: formData, // FormData object as the body
+
+    headers: {
+      'Content-Type': 'application/json', // Specify the content type
+    },  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json(); // or .text(), .blob(), etc. depending on the response type
+  })
+  .then(data => {
+    console.log(data); // Process your response data here
+    // Hide the popup when done
+    document.getElementById('popup').classList.add('hidden');
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    // Hide the popup even if there's an error
+    document.getElementById('popup').classList.add('hidden');
+  });
+});
+</script>
+
+<script>
+  document.getElementById('avaliar').addEventListener('click', function(event) {
+      // Opção: Previne o envio do formulário se necessário
+       event.preventDefault();
+  
+      // Captura os dados do formulário
+      var formData = new FormData();
+      var hipoteseSelecionada = document.querySelector('input[name="hipotese"]:checked').value;
+      formData.append('hipotese', hipoteseSelecionada);
+
+      var pergunta =document.getElementById('exampleFormControlTextarea1').value;
+      var resposta = document.getElementById('resposta').innerText;
+      formData.append('pergunta', pergunta);
+      formData.append('resposta', resposta);
+
+      // Envia os dados para a rota desejada com fetch
+      fetch('/evaluate', {
+          method: 'POST',
+          body: formData
+      })
+      .then(response => {
+          if (!response.ok) {
+              throw new Error('A rede respondeu com um erro');
+          }
+          return response.json(); // Ou .text() se você estiver retornando texto
+      })
+      .then(data => {
+          // Processa a resposta aqui. Por exemplo, exibindo um alerta ou atualizando a página
+          console.log(data);
+      })
+      .catch(error => {
+          console.error('Erro:', error);
+      });
+  
+      // Mostra a notificação
+      var notificacao = document.getElementById('notificacao');
+      notificacao.style.display = 'block';
+  
+      // Esconde a notificação depois de 3 segundos (3000 milissegundos)
+      setTimeout(function() {
+          notificacao.style.display = 'none';
+      }, 3000);
+  });
+  </script>
+
+    <script>
+      function clearContent() {
+          document.getElementById('exampleFormControlTextarea1').value = '';
+      }
+      </script>
+      <script>
+        function updateDataInfo() {
+          const selectedOption = document.getElementById("medicamentoSelect").selectedOptions[0];
+          console.log(selectedOption)
+          const dataInfo = selectedOption.getAttribute("dosagem");
+          document.getElementById("dosagem").value = dataInfo;
+        }
+      </script>
+</html>

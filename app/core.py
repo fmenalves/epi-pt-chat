@@ -1,32 +1,31 @@
-from llama_index.core import VectorStoreIndex
-from llama_index.embeddings.langchain import LangchainEmbedding
-from langchain.embeddings.huggingface import HuggingFaceEmbeddings
-from llama_index.core import Settings
-from llama_index.llms.openai import OpenAI
-import timeit
-from llama_index.vector_stores.qdrant import QdrantVectorStore
-from app import app
-
-from llama_index.embeddings.openai import OpenAIEmbedding
-from llama_index.llms.ollama import Ollama
-from llama_index.core.retrievers import VectorIndexRetriever
-from llama_index.core.query_engine import RetrieverQueryEngine
-from llama_index.core.node_parser import SentenceSplitter
-from llama_index.postprocessor.cohere_rerank import CohereRerank
-
-from llama_index.core.indices.postprocessor import (
-    SentenceTransformerRerank,
-)
-from dotenv import load_dotenv
 import os
-from app.support import (
-    text_qa_template,
-    refine_template,
-    get_filters_qdrant,
-    generate_queries,
-)
-import qdrant_client
+import timeit
+
 import pandas as pd
+import qdrant_client
+from dotenv import load_dotenv
+
+# from langchain.embeddings.huggingface import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
+
+# from langchain_huggingface import HuggingFaceEmbeddings
+from llama_index.core import Settings, VectorStoreIndex
+from llama_index.core.node_parser import SentenceSplitter
+from llama_index.core.query_engine import RetrieverQueryEngine
+from llama_index.core.retrievers import VectorIndexRetriever
+from llama_index.embeddings.langchain import LangchainEmbedding
+from llama_index.llms.ollama import Ollama
+from llama_index.llms.openai import OpenAI
+from llama_index.postprocessor.cohere_rerank import CohereRerank
+from llama_index.vector_stores.qdrant import QdrantVectorStore
+
+from app import app
+from app.support import (
+    generate_queries,
+    get_filters_qdrant,
+    refine_template,
+    text_qa_template,
+)
 
 load_dotenv()
 # pip install cohere
@@ -100,6 +99,7 @@ def build_rag_pipeline(products, metadatasource):
 
     # Check if results are found
     if len(results) == 0:
+        print("issue with the product and data in the collection")
         filters_qdrant = None
     retriever = VectorIndexRetriever(
         vector_store_kwargs={"qdrant_filters": filters_qdrant},
@@ -112,7 +112,7 @@ def build_rag_pipeline(products, metadatasource):
     # reranker = SentenceTransformerRerank(
     #    model="cross-encoder/ms-marco-MiniLM-L-2-v2", top_n=15
     # )
-    reranker = CohereRerank(api_key=cohere_api_key, top_n=15)
+    reranker = CohereRerank(api_key=cohere_api_key, top_n=5)
     # assemble query engine
     query_engine = RetrieverQueryEngine(
         retriever=retriever,  # response_mode="compact",
@@ -138,6 +138,31 @@ def present_result(query):
 
     print("Detected products:", products)
     rag_chain = build_rag_pipeline(products=products, metadatasource=metadatasource)
+    nquery = (
+        query
+        + "\n---------\nContext and more information about the products:\n"
+        + add_info
+    )
+
+    app.logger.info("Pergunta melhorada: {}".format(nquery))
+
+    answer = rag_chain.query(nquery)
+    end = timeit.default_timer()
+
+    return {
+        "response": answer.response,
+        "metadata": answer.metadata,
+        "time": str(round(end - start)) + "s",
+    }
+
+
+def present_result_demo(query, product):
+    start = timeit.default_timer()
+
+    _, add_info = generate_queries(query)
+
+    # print("Detected products:", products)
+    rag_chain = build_rag_pipeline(products=product, metadatasource=metadatasource)
     nquery = (
         query
         + "\n---------\nContext and more information about the products:\n"

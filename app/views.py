@@ -1,8 +1,7 @@
 from flask import render_template, request
 
-import os
 from app import app
-from app.core import present_result
+from app.core import present_result, present_result_demo
 
 # http://flask.pocoo.org/docs/1.0/
 VERSION = "0.0.4"
@@ -29,6 +28,44 @@ def home():
         )
     return render_template(
         "index.html",
+    )
+
+
+# Rinvoq
+# Ozempic
+# Paclitaxel Accord
+# Diovan
+# Influvac
+# Comirnaty - create
+# Triticum
+# Depakine
+# Lenalidomida Tecnigen
+# Ciplox - create
+
+
+@app.route("/demo", methods=["GET", "POST"])
+def demo():
+    if request.method == "POST":
+        msg = request.form.get("msg")
+        print(request.form)
+        medication = request.form.get("medicamento")
+        print(msg)
+        app.logger.info("Pergunta: {}".format(msg))
+        answer = present_result_demo(msg, medication)
+
+        print(answer)
+        app.logger.info("Resposta: {}".format(answer))
+
+        details = []
+        for key, value in answer["metadata"].items():
+            details.append(
+                value["source"].split("/")[-1] + ": Página " + str(value["page"])
+            )
+        return render_template(
+            "demo.html", answer=answer["response"], details=details, msg=msg
+        )
+    return render_template(
+        "demo.html",
     )
 
 
