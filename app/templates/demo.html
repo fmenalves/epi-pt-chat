@@ -49,18 +49,19 @@
                      <!-- Dropdown Menu with hidden data -->
          <div class="form-group">
           <label for="medicamentoSelect">Selecione um medicamento:</label>
-          <select class="form-control" id="medicamentoSelect" name="medicamento" onchange="updateDataInfo()">
-              <option value="Rinvoq" dosagem="15 mg">Rinvoq 15 mg Comprimido de libertação prolongada</option>
-              <option value="Ozempic" dosagem="0.5 mg/0.37 ml">Ozempic 0.5 mg/0.37 ml Solução injetável em caneta pré-cheia</option>
-              <option value="Paclitaxel Accord MG" dosagem="6 mg/ml">Paclitaxel Accord MG 6 mg/ml Concentrado para solução para perfusão</option>
-              <option value="Diovan" dosagem="80 mg">Diovan 80 mg Comprimido revestido por película</option>
-              <option value="Influvac Tetra" dosagem="Associação">Influvac Tetra Associação Suspensão injetável em seringa pré-cheia</option>
-              <option value="Comirnaty JN.1" dosagem="30 µg/0.3 ml">Comirnaty JN.1 30 µg/0.3 ml	Dispersão injetável em seringa pré-cheia</option>
-              <option value="Triticum" dosagem="100 mg">Triticum 100 mg Comprimido revestido por película</option>
-              <option value="Depakine" dosagem="40 mg/ml">Depakine 40 mg/ml Xarope</option>
-              <option value="Lenalidomida Tecnigen MG" dosagem="10 mg">Lenalidomida Tecnigen MG 10 mg Cápsula</option>
-              <option value="Ciplox MG" dosagem="500 mg">Ciplox MG 500 mg Comprimido revestido por película</option>
-          </select>
+          <select class="form-control" id="medicamentoSelect" name="medicamento">
+            <option value="" disabled>Select a medication</option>
+            <option value="Rinvoq" dosagem="15 mg" {{ 'Rinvoq' == selected_medicamento ? 'selected' : '' }}>Rinvoq 15 mg Comprimido de libertação prolongada</option>
+            <option value="Ozempic" dosagem="0.5 mg/0.37 ml" {{ 'Ozempic' == selected_medicamento ? 'selected' : '' }}>Ozempic 0.5 mg/0.37 ml Solução injetável em caneta pré-cheia</option>
+            <option value="Paclitaxel Accord MG" dosagem="6 mg/ml" {{ 'Paclitaxel Accord MG' == selected_medicamento ? 'selected' : '' }}>Paclitaxel Accord MG 6 mg/ml Concentrado para solução para perfusão</option>
+            <option value="Diovan" dosagem="80 mg" {{ 'Diovan' == selected_medicamento ? 'selected' : '' }}>Diovan 80 mg Comprimido revestido por película</option>
+            <option value="Influvac Tetra" dosagem="Associação" {{ 'Influvac Tetra' == selected_medicamento ? 'selected' : '' }}>Influvac Tetra Associação Suspensão injetável em seringa pré-cheia</option>
+            <option value="Comirnaty JN.1" dosagem="30 µg/0.3 ml" {{ 'Comirnaty JN.1' == selected_medicamento ? 'selected' : '' }}>Comirnaty JN.1 30 µg/0.3 ml Dispersão injetável em seringa pré-cheia</option>
+            <option value="Triticum" dosagem="100 mg" {{ 'Triticum' == selected_medicamento ? 'selected' : '' }}>Triticum 100 mg Comprimido revestido por película</option>
+            <option value="Depakine" dosagem="40 mg/ml" {{ 'Depakine' == selected_medicamento ? 'selected' : '' }}>Depakine 40 mg/ml Xarope</option>
+            <option value="Lenalidomida Tecnigen MG" dosagem="10 mg" {{ 'Lenalidomida Tecnigen MG' == selected_medicamento ? 'selected' : '' }}>Lenalidomida Tecnigen MG 10 mg Cápsula</option>
+            <option value="Ciplox MG" dosagem="500 mg" {{ 'Ciplox MG' == selected_medicamento ? 'selected' : '' }}>Ciplox MG 500 mg Comprimido revestido por película</option>
+        </select>
       </div>
 
             <div id="popup" class="hidden">

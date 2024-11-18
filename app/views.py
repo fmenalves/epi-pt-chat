@@ -64,7 +64,11 @@ def demo():
                 value["source"].split("/")[-1] + ": Página " + str(value["page"])
             )
         return render_template(
-            "demo.html", answer=answer["response"], details=details, msg=msg
+            "demo.html",
+            answer=answer["response"],
+            details=details,
+            msg=msg,
+            selected_medicamento=medication,
         )
     return render_template(
         "demo.html",
