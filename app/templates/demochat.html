@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Chat Interface</title>
+    <!-- Link to the external CSS file -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+    <style>
+        .hidden {
+            display: none;
+          }
+          
+          #popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            z-index: 1000;
+          }
+          .inline-radio {
+        display: inline-block;
+        margin-right: 10px; /* Ajuste o espaçamento conforme necessário */
+    }
+    </style>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+</head>
+<body>
+    <div class="container-fluid px-5">
+        <div class="row align-items-center">
+            <div class="col-3">
+                <img style="float:left; width:80%;" src="/static/P_logo_cor_vertical.png" class="rounded float-left" alt="PDH">
+            </div>
+            <div class="col-9">
+                <h1>Coloque as suas dúvidas aos medicamentos portugueses.</h1>
+                <p>Criámos uma inteligência artificial que responde em função dos RCMs dos medicamentos disponiveis em Portugal. Esta demo permite colocar perguntas a 10 medicamentos. Envie email para geral @ pharmadatahub.com para mais informações.</p>
+            </div>
+    
+        </div>
+    
+        <form  role="form" id="myForm" >
+          <div class="form-group">
+                <label for="exampleFormControlTextarea1">
+                    <h3>Este formulário permite fazer perguntas aos RCMs</h3>
+                </label>
+                         <!-- Dropdown Menu with hidden data -->
+             <div class="form-group">
+              <label for="medicamentoSelect">Selecione um medicamento:</label>
+              <select class="form-control" id="medicamentoSelect" name="medicamento" onchange="updateDataInfo()">
+                  <option value="Rinvoq" dosagem="15 mg">Rinvoq 15 mg Comprimido de libertação prolongada</option>
+                  <option value="Ozempic" dosagem="0.5 mg/0.37 ml">Ozempic 0.5 mg/0.37 ml Solução injetável em caneta pré-cheia</option>
+                  <option value="Paclitaxel Accord MG" dosagem="6 mg/ml">Paclitaxel Accord MG 6 mg/ml Concentrado para solução para perfusão</option>
+                  <option value="Diovan" dosagem="80 mg">Diovan 80 mg Comprimido revestido por película</option>
+                  <option value="Influvac Tetra" dosagem="Associação">Influvac Tetra Associação Suspensão injetável em seringa pré-cheia</option>
+                  <option value="Comirnaty JN.1" dosagem="30 µg/0.3 ml">Comirnaty JN.1 30 µg/0.3 ml	Dispersão injetável em seringa pré-cheia</option>
+                  <option value="Triticum" dosagem="100 mg">Triticum 100 mg Comprimido revestido por película</option>
+                  <option value="Depakine" dosagem="40 mg/ml">Depakine 40 mg/ml Xarope</option>
+                  <option value="Lenalidomida Tecnigen MG" dosagem="10 mg">Lenalidomida Tecnigen MG 10 mg Cápsula</option>
+                  <option value="Ciplox MG" dosagem="500 mg">Ciplox MG 500 mg Comprimido revestido por película</option>
+              </select>
+          </div>
+    
+          <div class="chat-container">
+            <div class="chat-area" id="chatArea" >
+                <!-- Messages will be dynamically inserted here -->
+            </div>
+            <div class="input-container">
+                <input type="text" id="userInput" placeholder="Escreva aqui a sua mensagem...">
+                <button onclick="sendChat()">Enviar</button>
+            </div>
+        </div>
+            </div>
+    
+    
+            <input type="hidden" id="dosagem" name="dosagem" value="15 mg">
+    
+           
+    
+        </form>
+        <br>
+
+
+<!-- Link to the external JavaScript file -->
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+</body>
+</html>

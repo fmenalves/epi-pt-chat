@@ -39,7 +39,8 @@ def get_metadata(metadatasource, nfilename, file_path):
 
     if len(extra_metadata) == 0:
         print("No metadata found for", nfilename)
-        extra_metadata = [["", "", "", "", "", ""]]
+        raise Exception("No metadata found")
+        # extra_metadata = [["", "", "", "", "", ""]]
     ff = {
         "Nome_Comercial": extra_metadata[0][1],
         "substancia": extra_metadata[0][2],
@@ -74,13 +75,14 @@ def build_index_big(file_list, client, index_name):
         loader = PyPDFium2Loader(file_path)
 
         ff = get_metadata(metadatasource, nfilename, file_path)
+        print(ff)
         # Load and parse the file contents
         parsed_data = loader.load()
         for p in parsed_data:
             p.metadata.update(ff)
 
-        if idx % 500 == 0:
-            print("Loading documents...", idx)
+        # if idx % 500 == 0:
+        print("Loading documents...", idx)
         documents = [
             Document(text=t.page_content, metadata=t.metadata) for t in parsed_data
         ]
@@ -108,7 +110,7 @@ file_list = [
 ]
 
 file_list = [
-    "/Users/joaoalmeida/Desktop/PDH/epi-gather/bulas-final/Comirnaty_JN_1Dispersão_injetável_em_seringa_pré_cheia30_µg_0_3_ml.pdf"
+    "/Users/joaoalmeida/Desktop/PDH/epi-gather/bulas-final/Comirnaty_JN_1Dispersão_injetável_em_seringa_pré_cheia30_µg_0_3_ml.pdf"
 ]
 
 build_index_big(file_list, client, index_name)

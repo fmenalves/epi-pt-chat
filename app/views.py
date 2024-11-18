@@ -1,4 +1,4 @@
-from flask import render_template, request
+from flask import jsonify, render_template, request
 
 from app import app
 from app.core import present_result, present_result_filtered
@@ -68,6 +68,44 @@ def demo():
         )
     return render_template(
         "demo.html",
+    )
+
+
+@app.route("/demochat", methods=["GET", "POST"])
+def demochat():
+    if request.method == "POST":
+        data = request.get_json()  # Automatically parses JSON
+        print(data)
+        msg = data.get("user_message")
+        # print(request.form)
+        medication = data.get("medicamento")
+        # print(msg)
+        strength = data.get("dosagem")
+        recent_history = data.get("recent_history", [])  # List of recent messages
+        if recent_history:
+            msg = "\n".join(
+                f"{entry['sender']}: {entry['message']}" for entry in recent_history
+            )
+        app.logger.info("Pergunta: {}".format(msg))
+        answer = present_result_filtered(msg, medication, strength)
+
+        print(answer)
+        app.logger.info("Resposta: {}".format(answer))
+
+        details = []
+        for key, value in answer["metadata"].items():
+            details.append(
+                value["source"].split("/")[-1] + ": Página " + str(value["page"])
+            )
+        details_better = "Documentos usados para procurar a resposta \n" + "\n".join(
+            details
+        )
+        return jsonify(
+            {"response": answer["response"], "additional_info": details_better}
+        )
+
+    return render_template(
+        "demochat.html",
     )
 
 
