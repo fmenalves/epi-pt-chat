@@ -3,7 +3,9 @@ const chatHistory = [];
 
 async function sendChat() {
     event.preventDefault();
-
+        // Show the popup
+    document.getElementById('popup').classList.remove('hidden');
+      
     const medicamentoSelect = document.getElementById("medicamentoSelect");
     const selectedMedicamento = medicamentoSelect.options[medicamentoSelect.selectedIndex].value;
     const selectedDosagem = medicamentoSelect.options[medicamentoSelect.selectedIndex].getAttribute("dosagem");
@@ -24,7 +26,8 @@ async function sendChat() {
     const data = {
         medicamento: selectedMedicamento,
         dosagem: selectedDosagem,
-        recent_history: recentHistory
+        recent_history: recentHistory,
+        user_message:userInput
     };
 
     try {
@@ -44,10 +47,14 @@ async function sendChat() {
 
         // Add bot's response to the history
         chatHistory.push({ sender: 'bot', message: result.response });
+        document.getElementById('popup').classList.add('hidden');
+
         appendMessage(result.response, result.additional_info, 'bot-message'); // Pass additional info for bot response
     } catch (error) {
         console.error("Error:", error);
         alert("Ocorreu um erro ao enviar a mensagem. Por favor, tente novamente.");
+        document.getElementById('popup').classList.add('hidden');
+
     }
 
     document.getElementById("userInput").value = "";

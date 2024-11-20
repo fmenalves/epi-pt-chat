@@ -16,7 +16,6 @@ from llama_index.core.retrievers import VectorIndexRetriever
 from llama_index.embeddings.langchain import LangchainEmbedding
 from llama_index.llms.ollama import Ollama
 from llama_index.llms.openai import OpenAI
-from llama_index.postprocessor.cohere_rerank import CohereRerank
 from llama_index.vector_stores.qdrant import QdrantVectorStore
 
 from app import app
@@ -111,20 +110,20 @@ def build_rag_pipeline(products, metadatasource, strength=None):
         vector_store_kwargs={"qdrant_filters": filters_qdrant},
         index=index,
         # filters=filters,
-        similarity_top_k=30,
+        similarity_top_k=10,
     )
     # configure response synthesizer
     # response_synthesizer = get_response_synthesizer()
     # reranker = SentenceTransformerRerank(
     #    model="cross-encoder/ms-marco-MiniLM-L-2-v2", top_n=15
     # )
-    reranker = CohereRerank(api_key=cohere_api_key, top_n=5)
+    # reranker = CohereRerank(api_key=cohere_api_key, top_n=7)
     # assemble query engine
     query_engine = RetrieverQueryEngine(
         retriever=retriever,  # response_mode="compact",
-        node_postprocessors=[
-            reranker
-        ],  # ,SimilarityPostprocessor(similarity_cutoff=0.7)],
+        #  node_postprocessors=[
+        #       reranker
+        #   ],  # ,SimilarityPostprocessor(similarity_cutoff=0.7)],
     )
 
     query_engine.update_prompts(

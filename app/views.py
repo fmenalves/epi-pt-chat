@@ -31,18 +31,6 @@ def home():
     )
 
 
-# Rinvoq
-# Ozempic
-# Paclitaxel Accord
-# Diovan
-# Influvac
-# Comirnaty - create
-# Triticum
-# Depakine
-# Lenalidomida Tecnigen
-# Ciplox - create
-
-
 @app.route("/demo", methods=["GET", "POST"])
 def demo():
     if request.method == "POST":
@@ -86,10 +74,10 @@ def demochat():
         # print(msg)
         strength = data.get("dosagem")
         recent_history = data.get("recent_history", [])  # List of recent messages
-        if recent_history:
-            msg = "\n".join(
-                f"{entry['sender']}: {entry['message']}" for entry in recent_history
-            )
+        # if recent_history:
+        #    msg = "\n".join(
+        #        f"{entry['sender']}: {entry['message']}" for entry in recent_history
+        #    )
         app.logger.info("Pergunta: {}".format(msg))
         answer = present_result_filtered(msg, medication, strength)
 

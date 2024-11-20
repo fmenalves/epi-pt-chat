@@ -3,12 +3,14 @@ Description=My Python Script Service
 After=network.target
 
 [Service]
-ExecStart=/home/jalmeida/miniconda3/envs/ragepi/bin/python /home/jalmeida/epi-pt-chat/run.py
+ExecStart= sh /home/jalmeida/epi-pt-chat/gunicorn.sh
 WorkingDirectory=/home/jalmeida/epi-pt-chat
-StandardOutput=inherit
-StandardError=inherit
+StandardOutput=append:/home/jalmeida/epi-pt-chat/logs/so.log
+StandardError=append:/home/jalmeida/epi-pt-chat/logs/se.log
 Restart=always
-User=joaoalmeida
+User=jalmeida
+Environment="PATH=/home/jalmeida/miniconda3/envs/ragepi/bin"
+
 
 [Install]
 WantedBy=multi-user.target
