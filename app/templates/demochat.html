@@ -16,11 +16,15 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            padding: 20px;
-            background-color: #f9f9f9;
             border: 1px solid #ccc;
             z-index: 1000;
           }
+          #popup img {
+  width: 140px; /* Adjust size as needed */
+  height: 140px; /* Adjust size as needed */
+  margin-bottom: 10px; /* Add space between the GIF and the text */
+}
+
           .inline-radio {
         display: inline-block;
         margin-right: 10px; /* Ajuste o espaçamento conforme necessário */
@@ -64,8 +68,8 @@
               </select>
           </div>
           <div id="popup" class="hidden">
-            <p>A procurar informação e a criar a resposta, aguarde...</p>
-          </div>
+            <img src="/static/pdh_animated.gif" alt="Processing..." />
+        </div>
           <div class="chat-container">
             <div class="chat-area" id="chatArea" >
                 <!-- Messages will be dynamically inserted here -->
