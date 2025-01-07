@@ -1,0 +1,24 @@
+{
+    "Ciplox 500mg": {
+        "questions": [
+            "Quais são as principais indicações terapêuticas do Ciplox?"
+        ],
+        "ground_truths": [
+            "O Ciplox está indicado para o tratamento de várias infeções bacterianas, incluindo:\nInfeções respiratórias (pneumonia, bronquites, exacerbações da doença pulmonar obstrutiva crónica).\nInfeções do trato urinário (cistite, pielonefrite, prostatite bacteriana).\nDoenças de transmissão sexual, como uretrite e cervicite gonocócica.\nInfeções gastrointestinais (ex.: diarreia do viajante).\nAntraz por inalação.\nDeve-se consultar o médico antes de iniciar o tratamento, especialmente em casos de resistência bacteriana​"
+        ]
+    },
+    "outro": {
+        "questions": [
+            "Quais são os efeitos adversos mais comuns associados ao Ciplox?",
+            "Como deve ser administrado o Ciplox?",
+            "Quais são as contraindicações do uso do Ciplox?",
+            "O Ciplox é seguro para uso em crianças e grávidas?"
+        ],
+        "ground_truths": [
+            "Os efeitos adversos mais comuns incluem:\n\nNáuseas.\nDiarreia.\nDor abdominal.\nTonturas.\nEm casos raros, podem ocorrer reações alérgicas graves, alterações no sistema nervoso central (como convulsões), ou problemas musculosqueléticos, como tendinite e rutura de tendão​(Ciplox_MGComprimido_rev…).\n",
+            "O Ciplox deve ser ingerido com líquido, sem mastigar. Pode ser tomado independentemente das refeições, mas sua absorção é mais rápida com o estômago vazio. Evite tomá-lo com produtos lácteos ou sucos enriquecidos com minerais, pois podem interferir na sua eficácia​(Ciplox_MGComprimido_rev…).",
+            "O Ciplox não deve ser usado em casos de:\n\nHipersensibilidade à ciprofloxacina ou outras quinolonas.\nUso concomitante de tizanidina.\nHistórico de reações adversas graves às fluoroquinolonas, como tendinite ou neuropatia​(Ciplox_MGComprimido_rev…).",
+            "Crianças: Pode ser utilizado em casos específicos, como infeções graves, mas requer avaliação cuidadosa devido ao risco de artropatia.\nGrávidas: Embora não haja evidências claras de malformações, recomenda-se evitar o uso durante a gravidez devido ao potencial risco de danos à cartilagem do feto.\nAmamentação: Não deve ser usado, pois a ciprofloxacina é excretada no leite materno​(Ciplox_MGComprimido_rev…)."
+        ]
+    }
+}
