@@ -80,7 +80,7 @@ def build_rag_pipeline(products, metadatasource, strength=None):
         # pass
         llm = Ollama(
             # model="llama3.1:70b",
-            model="llama3.1",
+            model="llama3.3",
             base_url=LLM_URL,
             temperature=0,
             request_timeout=60,
