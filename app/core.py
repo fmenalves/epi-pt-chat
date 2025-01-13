@@ -7,14 +7,12 @@ from dotenv import load_dotenv
 
 # from langchain.embeddings.huggingface import HuggingFaceEmbeddings
 # from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_huggingface import HuggingFaceEmbeddings
-from langsmith import traceable
 from llama_index.core import Settings, VectorStoreIndex, get_response_synthesizer
 from llama_index.core.node_parser import SentenceSplitter
 from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.core.response_synthesizers import ResponseMode
 from llama_index.core.retrievers import VectorIndexRetriever
-from llama_index.embeddings.langchain import LangchainEmbedding
+from llama_index.embeddings.ollama import OllamaEmbedding
 from llama_index.llms.ollama import Ollama
 from llama_index.llms.openai import OpenAI
 from llama_index.vector_stores.qdrant import QdrantVectorStore
@@ -45,6 +43,7 @@ OPENAI_KEY = os.getenv("OPENAI_KEY")
 metadatasource = pd.read_csv("finaldbpt2.csv", delimiter=",")
 embed_model_name = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 embed_model_name = "sentence-transformers/all-mpnet-base-v2"
+
 client = qdrant_client.QdrantClient(URI_BD)
 
 
@@ -53,7 +52,14 @@ def retrieve_index(client, llm, index_name):
     Settings.text_splitter = text_splitter
 
     # embed_model = OpenAIEmbedding(embed_batch_size=10)
-    embed_model = LangchainEmbedding(HuggingFaceEmbeddings(model_name=embed_model_name))
+    # embed_model = LangchainEmbedding(HuggingFaceEmbeddings(model_name=embed_model_name))
+
+    ollama_embedding = OllamaEmbedding(
+        model_name="nomic-embed-text",
+        # base_url="http://localhost:11434",
+        # ollama_additional_kwargs={"mirostat": 0},
+    )
+    embed_model = ollama_embedding
     Settings.llm = llm
     Settings.embed_model = embed_model
     # Settings.num_output = 512
@@ -72,7 +78,6 @@ def retrieve_index(client, llm, index_name):
     return index
 
 
-@traceable()
 def build_rag_pipeline(products, metadatasource, strength=None):
     if OPENAI_KEY is not None:
         llm = OpenAI(temperature=0, api_key=OPENAI_KEY, model="gpt-4")
@@ -114,7 +119,7 @@ def build_rag_pipeline(products, metadatasource, strength=None):
         vector_store_kwargs={"qdrant_filters": filters_qdrant},
         index=index,
         # filters=filters,
-        similarity_top_k=1,
+        similarity_top_k=2,
     )
     # configure response synthesizer
     # reranker = CohereRerank(api_key=cohere_api_key, top_n=2)
@@ -186,9 +191,10 @@ def present_result_filtered(query, product, dosagem):
     print("rag_chain.query took " + str(round(afterrag2 - afterrag)))
 
     end = timeit.default_timer()
-    print(answer)
+    # print(answer)
     return {
         "response": answer.response,
         "metadata": answer.metadata,
+        "other": answer,
         "time": str(round(end - start)) + "s",
     }

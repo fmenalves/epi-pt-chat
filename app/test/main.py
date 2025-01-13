@@ -2,7 +2,6 @@ import json
 import os
 
 from langchain_ollama.llms import OllamaLLM
-from langsmith import traceable
 
 # https://blog.futuresmart.ai/a-beginners-guide-to-evaluating-rag-systems-with-langsmith
 # https://docs.ragas.io/en/stable/getstarted/evals/#evaluation
@@ -87,7 +86,6 @@ except Exception as e:
     print(f"Error creating dataset '{dataset_name}': {e}")
 
 
-@traceable()
 def get_answer(example):
     print(str(example))
     question = example["question"]["question"]
@@ -116,7 +114,7 @@ llm_small = OllamaLLM(
 qa_evaluator = [
     LangChainStringEvaluator(
         "qa",
-        config={"llm": llm_small},
+        config={"llm": llm},
         prepare_data=lambda run, example: {
             "prediction": run.outputs["response"],  # RAG system's answer
             "reference": example.outputs["answer"],  # Ground truth answer
@@ -132,8 +130,8 @@ experiment_results = evaluate(
     get_answer,
     data=dataset_name,
     evaluators=qa_evaluator,
-    experiment_prefix="rag-qa-oai",
-    metadata={"variant": "LCEL context, gpt-4o-mini"},
+    experiment_prefix="rag-qa-llama-nomic",
+    metadata={"variant": "LCEL context, llama3.3 - nomic"},
 )
 
 

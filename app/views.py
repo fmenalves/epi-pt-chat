@@ -117,3 +117,27 @@ def eval():
     )
 
     return render_template("index.html")
+
+
+@app.route("/api/v1/results", methods=["POST"])
+def apiv1():
+    msg = request.form.get("msg")
+    print(request.form)
+    medication = request.form.get("medicamento")
+    print(msg)
+    strength = request.form.get("dosagem")
+
+    app.logger.info("Pergunta: {}".format(msg))
+    answer = present_result_filtered(msg, medication, strength)
+
+    print(answer)
+    app.logger.info("Resposta: {}".format(answer))
+
+    details = []
+    for key, value in answer["metadata"].items():
+        details.append(
+            value["source"].split("/")[-1] + ": Página " + str(value["page"])
+        )
+    return jsonify(
+        {"message": answer["message"], "details": details, "resumo": answer["resumo"]}
+    )
