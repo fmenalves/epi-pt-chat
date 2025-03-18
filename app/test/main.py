@@ -98,6 +98,18 @@ def get_answer(example):
     return answer
 
 
+def predict_rag_answer_with_context(example):
+    print(str(example))
+    question = example["question"]["question"]
+    drug_name = example["drugname"]["drug_name"]  # now accessible
+    medication = DATA_TRANSFORM[drug_name][0]
+    strength = DATA_TRANSFORM[drug_name][1]
+
+    answer = present_result_filtered(question, medication, strength)
+    print("----->" + str(answer))
+    return answer
+
+
 llm = OllamaLLM(
     model="llama3.3",
     base_url="https://gecadllm.fish-albacore.ts.net:8443/api",
@@ -105,7 +117,7 @@ llm = OllamaLLM(
     request_timeout=150,
 )
 llm_small = OllamaLLM(
-    model="llama3.1",
+    model="llama3.2",
     base_url="http://localhost:11434",
     temperature=0,
     request_timeout=150,
@@ -114,7 +126,7 @@ llm_small = OllamaLLM(
 qa_evaluator = [
     LangChainStringEvaluator(
         "qa",
-        config={"llm": llm},
+        config={"llm": llm_small},
         prepare_data=lambda run, example: {
             "prediction": run.outputs["response"],  # RAG system's answer
             "reference": example.outputs["answer"],  # Ground truth answer
@@ -136,29 +148,29 @@ experiment_results = evaluate(
 
 
 # # Evaluator for detecting hallucinations
-# answer_hallucination_evaluator = LangChainStringEvaluator(
-#     "labeled_score_string",
-#     config={
-#         "criteria": {
-#             "accuracy": """Is the Assistant's Answer grounded in the Ground Truth documentation?
-#             A score of [[1]] means the answer is not at all based on the documentation.
-#             A score of [[5]] means the answer contains some information not in the documentation.
-#             A score of [[10]] means the answer is fully based on the documentation."""
-#         },
-#         "normalize_by": 10,  # Normalize scores to a 0-1 scale
-#         "llm": model,
-#     },
-#     prepare_data=lambda run, example: {
-#         "prediction": run.outputs["answer"],  # RAG system's answer
-#         "reference": run.outputs["contexts"],  # Retrieved documents
-#         "input": example.inputs["question"],  # Original question
-#     },
-# )
+answer_hallucination_evaluator = LangChainStringEvaluator(
+    "labeled_score_string",
+    config={
+        "criteria": {
+            "accuracy": """Is the Assistant's Answer grounded in the Ground Truth documentation?
+            A score of [[1]] means the answer is not at all based on the documentation.
+            A score of [[5]] means the answer contains some information not in the documentation.
+            A score of [[10]] means the answer is fully based on the documentation."""
+        },
+        "normalize_by": 10,  # Normalize scores to a 0-1 scale
+        "llm": llm_small,
+    },
+    prepare_data=lambda run, example: {
+        "prediction": run.outputs["answer"],  # RAG system's answer
+        "reference": run.outputs["contexts"],  # Retrieved documents
+        "input": example.inputs["question"],  # Original question
+    },
+)
 
-# experiment_results = evaluate(
-#     predict_rag_answer_with_context,
-#     data=dataset_name,
-#     evaluators=[answer_hallucination_evaluator],
-#     experiment_prefix="rag-qa-oai-hallucination",
-#     metadata={"variant": "LCEL context, gpt-4o-mini"},
-# )
+experiment_results = evaluate(
+    predict_rag_answer_with_context,
+    data=dataset_name,
+    evaluators=[answer_hallucination_evaluator],
+    experiment_prefix="rag-qa-oai-hallucination",
+    metadata={"variant": "LCEL context, gpt-4o-mini"},
+)

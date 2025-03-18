@@ -1,24 +1,162 @@
 {
     "Ciplox 500mg": {
         "questions": [
-            "Quais são as principais indicações terapêuticas do Ciplox?"
+            "Quais s\u00e3o as principais indica\u00e7\u00f5es terap\u00eauticas do Ciplox?",
+            "Quais s\u00e3o os efeitos adversos mais comuns associados ao Ciplox?",
+            "Como deve ser administrado o Ciplox?",
+            "Quais s\u00e3o as contraindica\u00e7\u00f5es do uso do Ciplox?",
+            "O Ciplox \u00e9 seguro para uso em crian\u00e7as e gr\u00e1vidas?"
         ],
         "ground_truths": [
-            "O Ciplox está indicado para o tratamento de várias infeções bacterianas, incluindo:\nInfeções respiratórias (pneumonia, bronquites, exacerbações da doença pulmonar obstrutiva crónica).\nInfeções do trato urinário (cistite, pielonefrite, prostatite bacteriana).\nDoenças de transmissão sexual, como uretrite e cervicite gonocócica.\nInfeções gastrointestinais (ex.: diarreia do viajante).\nAntraz por inalação.\nDeve-se consultar o médico antes de iniciar o tratamento, especialmente em casos de resistência bacteriana​"
+            "O Ciplox est\u00e1 indicado para o tratamento de v\u00e1rias infe\u00e7\u00f5es bacterianas, incluindo:\n\nInfe\u00e7\u00f5es respirat\u00f3rias (pneumonia, bronquites, exacerba\u00e7\u00f5es da doen\u00e7a pulmonar obstrutiva cr\u00f3nica).\nInfe\u00e7\u00f5es do trato urin\u00e1rio (cistite, pielonefrite, prostatite bacteriana).\nDoen\u00e7as de transmiss\u00e3o sexual, como uretrite e cervicite gonoc\u00f3cica.\nInfe\u00e7\u00f5es gastrointestinais (ex.: diarreia do viajante).\nAntraz por inala\u00e7\u00e3o.\nDeve-se consultar o m\u00e9dico antes de iniciar o tratamento, especialmente em casos de resist\u00eancia bacteriana\u200b(Ciplox_MGComprimido_rev\u2026).",
+            "Os efeitos adversos mais comuns incluem:\n\nN\u00e1useas.\nDiarreia.\nDor abdominal.\nTonturas.\nEm casos raros, podem ocorrer rea\u00e7\u00f5es al\u00e9rgicas graves, altera\u00e7\u00f5es no sistema nervoso central (como convuls\u00f5es), ou problemas musculosquel\u00e9ticos, como tendinite e rutura de tend\u00e3o\u200b(Ciplox_MGComprimido_rev\u2026).\n",
+            "O Ciplox deve ser ingerido com l\u00edquido, sem mastigar. Pode ser tomado independentemente das refei\u00e7\u00f5es, mas sua absor\u00e7\u00e3o \u00e9 mais r\u00e1pida com o est\u00f4mago vazio. Evite tom\u00e1-lo com produtos l\u00e1cteos ou sucos enriquecidos com minerais, pois podem interferir na sua efic\u00e1cia\u200b(Ciplox_MGComprimido_rev\u2026).\n\n",
+            "O Ciplox n\u00e3o deve ser usado em casos de:\n\nHipersensibilidade \u00e0 ciprofloxacina ou outras quinolonas.\nUso concomitante de tizanidina.\nHist\u00f3rico de rea\u00e7\u00f5es adversas graves \u00e0s fluoroquinolonas, como tendinite ou neuropatia\u200b(Ciplox_MGComprimido_rev\u2026).\n",
+            "Crian\u00e7as: Pode ser utilizado em casos espec\u00edficos, como infe\u00e7\u00f5es graves, mas requer avalia\u00e7\u00e3o cuidadosa devido ao risco de artropatia.\nGr\u00e1vidas: Embora n\u00e3o haja evid\u00eancias claras de malforma\u00e7\u00f5es, recomenda-se evitar o uso durante a gravidez devido ao potencial risco de danos \u00e0 cartilagem do feto.\nAmamenta\u00e7\u00e3o: N\u00e3o deve ser usado, pois a ciprofloxacina \u00e9 excretada no leite materno\u200b(Ciplox_MGComprimido_rev\u2026).\n"
         ]
     },
-    "outro": {
+    "Comirnaty JN.1": {
         "questions": [
-            "Quais são os efeitos adversos mais comuns associados ao Ciplox?",
-            "Como deve ser administrado o Ciplox?",
-            "Quais são as contraindicações do uso do Ciplox?",
-            "O Ciplox é seguro para uso em crianças e grávidas?"
+            "Para quem est\u00e1 indicado o Comirnaty?",
+            "Quais as principais contraindica\u00e7\u00f5es?",
+            "Quais os efeitos adversos mais frequentes observados?",
+            "Existe algum risco associado \u00e0 vacina\u00e7\u00e3o em pessoas jovens?",
+            "Como deve ser administrada a vacina?"
         ],
         "ground_truths": [
-            "Os efeitos adversos mais comuns incluem:\n\nNáuseas.\nDiarreia.\nDor abdominal.\nTonturas.\nEm casos raros, podem ocorrer reações alérgicas graves, alterações no sistema nervoso central (como convulsões), ou problemas musculosqueléticos, como tendinite e rutura de tendão​(Ciplox_MGComprimido_rev…).\n",
-            "O Ciplox deve ser ingerido com líquido, sem mastigar. Pode ser tomado independentemente das refeições, mas sua absorção é mais rápida com o estômago vazio. Evite tomá-lo com produtos lácteos ou sucos enriquecidos com minerais, pois podem interferir na sua eficácia​(Ciplox_MGComprimido_rev…).",
-            "O Ciplox não deve ser usado em casos de:\n\nHipersensibilidade à ciprofloxacina ou outras quinolonas.\nUso concomitante de tizanidina.\nHistórico de reações adversas graves às fluoroquinolonas, como tendinite ou neuropatia​(Ciplox_MGComprimido_rev…).",
-            "Crianças: Pode ser utilizado em casos específicos, como infeções graves, mas requer avaliação cuidadosa devido ao risco de artropatia.\nGrávidas: Embora não haja evidências claras de malformações, recomenda-se evitar o uso durante a gravidez devido ao potencial risco de danos à cartilagem do feto.\nAmamentação: Não deve ser usado, pois a ciprofloxacina é excretada no leite materno​(Ciplox_MGComprimido_rev…)."
+            "O Comirnaty est\u00e1 indicado para imuniza\u00e7\u00e3o ativa para prevenir a COVID-19 causada pelo SARS-CoV-2 em indiv\u00edduos com idade igual ou superior a 12 anos. A utiliza\u00e7\u00e3o segue as recomenda\u00e7\u00f5es oficiais\u200b(Comirnaty_JN_1Dispersa\u0303\u2026).\n",
+            "A vacina \u00e9 contraindicada em casos de hipersensibilidade \u00e0 subst\u00e2ncia ativa ou a qualquer um dos excipientes mencionados na sec\u00e7\u00e3o 6.1 do documento\u200b(Comirnaty_JN_1Dispersa\u0303\u2026).\n",
+            "Os efeitos adversos mais comuns incluem dor no local da inje\u00e7\u00e3o (>80%), fadiga (>60%), cefaleias (>50%), mialgia (>40%), arrepios (>30%), artralgia (>20%) e febre (>10%). Estes s\u00e3o geralmente leves ou moderados e resolvem-se em alguns dias\u200b(Comirnaty_JN_1Dispersa\u0303\u2026).\n",
+            "Sim, h\u00e1 um risco aumentado de miocardite e pericardite, especialmente em jovens do sexo masculino, geralmente observados dentro de 14 dias ap\u00f3s a vacina\u00e7\u00e3o\u200b(Comirnaty_JN_1Dispersa\u0303\u2026).\n",
+            "O Comirnaty deve ser administrado por via intramuscular, preferencialmente no m\u00fasculo deltoide do bra\u00e7o. A vacina n\u00e3o deve ser dilu\u00edda antes do uso e n\u00e3o pode ser misturada com outros medicamentos na mesma seringa\u200b(Comirnaty_JN_1Dispersa\u0303\u2026).\n"
+        ]
+    },
+    "Depakine 40 mg /ml": {
+        "questions": [
+            "1. Quais s\u00e3o as principais indica\u00e7\u00f5es terap\u00eauticas do Depakine Xarope 40 mg/ml?",
+            "2. Quais s\u00e3o os principais efeitos adversos associados ao uso do Depakine?",
+            "3. Quais as contraindica\u00e7\u00f5es principais para o uso de Depakine?",
+            "4. Quais s\u00e3o as precau\u00e7\u00f5es espec\u00edficas para mulheres em idade f\u00e9rtil ou gr\u00e1vidas?",
+            "5. Como \u00e9 feita a administra\u00e7\u00e3o inicial e o ajuste de dose do Depakine?"
+        ],
+        "ground_truths": [
+            "O Depakine \u00e9 indicado para:\nTratamento de crises epil\u00e9ticas generalizadas ou parciais, incluindo convuls\u00f5es cl\u00f3nicas, t\u00f3nicas, t\u00f3nico-cl\u00f3nicas, miocl\u00f3nicas e aus\u00eancias.\nTratamento de formas mistas de epilepsia, incluindo as s\u00edndromes de West e Lennox-Gastaut.\nTratamento de epis\u00f3dios man\u00edacos associados a perturba\u00e7\u00f5es bipolares, especialmente quando o l\u00edtio est\u00e1 contraindicado ou n\u00e3o \u00e9 tolerado\u200b(DepakineXarope40_mg_ml).",
+            "Os efeitos adversos incluem:\nMuito frequentes: Tremores, n\u00e1useas.\nFrequentes: Trombocitopenia, sonol\u00eancia, aumento de peso, hiponatremia.\nPouco frequentes: Pancreatite, hipotermia, hiperamonemia associada a sintomas neurol\u00f3gicos.\nRaros: Hepatite grave, encefalopatia, rabdomi\u00f3lise\u200b(DepakineXarope40_mg_ml).\n",
+            "O Depakine est\u00e1 contraindicado em casos de:\nHepatite aguda ou cr\u00f3nica.\nHist\u00f3ria pessoal ou familiar de hepatite grave.\nDoen\u00e7as mitocondriais causadas por muta\u00e7\u00f5es no gene POLG.\nTratamento de epilepsia e perturba\u00e7\u00e3o bipolar em mulheres gr\u00e1vidas, salvo se n\u00e3o houver alternativa eficaz\u200b(DepakineXarope40_mg_ml).\n",
+            "O Depakine tem elevado risco teratog\u00e9nico. \u00c9 contraindicado durante a gravidez, exceto em casos sem alternativas.\nAs mulheres em idade f\u00e9rtil devem aderir ao Programa de Preven\u00e7\u00e3o da Gravidez, usando contrace\u00e7\u00e3o eficaz.\nEm caso de gravidez, o tratamento deve ser reavaliado e alternativas devem ser consideradas\u200b(DepakineXarope40_mg_ml).\n",
+            "Para epilepsia:\nIn\u00edcio: 10-15 mg/kg/dia, aumentando gradualmente at\u00e9 20-30 mg/kg/dia.\nDoses superiores a 50 mg/kg/dia exigem vigil\u00e2ncia rigorosa.\nPara perturba\u00e7\u00e3o bipolar:\nAdultos: Dose inicial de 750 mg/dia, podendo ser ajustada at\u00e9 1000-2000 mg/dia com base na resposta cl\u00ednica\u200b(DepakineXarope40_mg_ml).\n"
+        ]
+    },
+    "Diovan 80 mg": {
+        "questions": [
+            "1. Quais s\u00e3o as indica\u00e7\u00f5es terap\u00eauticas do Diovan 80 mg?",
+            "2. Quais s\u00e3o as contraindica\u00e7\u00f5es principais?\n",
+            "3. Quais s\u00e3o os efeitos adversos mais comuns relatados?\n",
+            "4. Qual a posologia recomendada para hipertens\u00e3o em adultos?\n",
+            "5. Quais cuidados especiais devem ser observados na administra\u00e7\u00e3o do medicamento?\n"
+        ],
+        "ground_truths": [
+            "O Diovan 80 mg \u00e9 indicado para:\n\nTratamento da hipertens\u00e3o arterial essencial em adultos e em crian\u00e7as/adolescentes de 6 a menos de 18 anos.\nTratamento de insufici\u00eancia card\u00edaca sintom\u00e1tica em adultos quando os inibidores da enzima de convers\u00e3o da angiotensina (ECA) n\u00e3o s\u00e3o tolerados.\nTerapia ap\u00f3s enfarte do mioc\u00e1rdio recente em adultos clinicamente est\u00e1veis (12 horas a 10 dias)\u200b(DiovanComprimido_revest\u2026).",
+            "O Diovan \u00e9 contraindicado em casos de:\n\nHipersensibilidade \u00e0 subst\u00e2ncia ativa ou a qualquer excipiente.\nCompromisso hep\u00e1tico grave, cirrose biliar e colestase.\nGravidez no segundo e terceiro trimestres.\nUso concomitante com medicamentos contendo aliscireno em pacientes com diabetes mellitus ou fun\u00e7\u00e3o renal comprometida (TFG <60 ml/min/1,73m\u00b2)\u200b(DiovanComprimido_revest\u2026).",
+            "Os efeitos adversos mais frequentes incluem:\n\nTontura.\nHipotens\u00e3o.\nDor abdominal.\nFadiga.\nCompromisso e insufici\u00eancia renal\nEm casos menos frequentes, pode ocorrer hipercaliemia e insufici\u00eancia renal\u200b(DiovanComprimido_revest\u2026).\n",
+            "A dose inicial recomendada \u00e9 de 80 mg uma vez ao dia. Caso a press\u00e3o arterial n\u00e3o seja devidamente controlada, a dose pode ser aumentada para 160 mg e, se necess\u00e1rio, at\u00e9 o m\u00e1ximo de 320 mg por dia. Diovan pode ser administrado com outros agentes anti-hipertensores\u200b(DiovanComprimido_revest\u2026).\n\n",
+            "Monitoriza\u00e7\u00e3oamento de pot\u00e1ssio: Especialmente ao usar diur\u00e9ticos poupadores de pot\u00e1ssio ou substitutos de sal contendo pot\u00e1ssio.\nFun\u00e7\u00e3o renal: Recomenda-se cuidado em pacientes com fun\u00e7\u00e3o renal comprometida (depura\u00e7\u00e3o de creatinina <10 ml/min).\nGravidez: Deve ser interrompido imediatamente se diagnosticada a gravidez.\nHepatopatias: A dose n\u00e3o deve exceder 80 mg em pacientes com comprometimento hep\u00e1tico leve a moderado sem colestase\u200b(DiovanComprimido_revest\u2026).\n"
+        ]
+    },
+    "Influvac tetra": {
+        "questions": [
+            "Para quem o Influvac Tetra \u00e9 indicado?",
+            "Quais s\u00e3o os componentes ativos da vacina?\n",
+            "Quais s\u00e3o as contraindica\u00e7\u00f5es do Influvac Tetra?",
+            "Como deve ser administrado o Influvac Tetra?\n",
+            "Quais s\u00e3o os poss\u00edveis efeitos adversos mais comuns?"
+        ],
+        "ground_truths": [
+            "\u00c9 indicado para a profilaxia da gripe em adultos e crian\u00e7as a partir de 6 meses de idade, especialmente para aqueles com maior risco de complica\u00e7\u00f5es associadas \u00e0 gripe\u200b(Influvac_TetraSuspensa\u0303\u2026).\n",
+            "Cont\u00e9m antig\u00e9nios de superf\u00edcie do v\u00edrus Influenza (hemaglutinina e neuraminidase) das estirpes:\nA/Victoria/4897/2022 (H1N1)pdm09\nA/Darwin/9/2021 (H3N2)\nB/Austria/1359417/2021\nB/Phuket/3073/2013\u200b(Influvac_TetraSuspensa\u0303\u2026).",
+            "\u00c9 contraindicado para pessoas com hipersensibilidade \u00e0s subst\u00e2ncias ativas, a qualquer excipiente mencionado ou a componentes como ovos, formalde\u00eddo, brometo de cetiltrimetilam\u00f3nio, polissorbato 80 ou gentamicina. Tamb\u00e9m n\u00e3o deve ser administrado em doentes com febre ou infe\u00e7\u00f5es agudas\u200b(Influvac_TetraSuspensa\u0303\u2026).",
+            "A vacina deve ser administrada por via intramuscular ou subcut\u00e2nea profunda. Em crian\u00e7as menores de 35 meses, a inje\u00e7\u00e3o \u00e9 preferencialmente no lado antero-lateral da coxa, enquanto em crian\u00e7as acima de 36 meses e adultos, no m\u00fasculo deltoide\u200b(Influvac_TetraSuspensa\u0303\u2026).\n",
+            "Os efeitos adversos mais frequentes incluem dor no local da inje\u00e7\u00e3o, fadiga, cefaleia, e em crian\u00e7as pequenas, sonol\u00eancia, irritabilidade e perda de apetite. Em geral, essas rea\u00e7\u00f5es s\u00e3o leves e desaparecem espontaneamente dentro de 1 a 3 dias\u200b(Influvac_TetraSuspensa\u0303\u2026)."
+        ]
+    },
+    "Lenalidomida tecnigen 10mg": {
+        "questions": [
+            "1. Quais s\u00e3o as principais indica\u00e7\u00f5es terap\u00eauticas da Lenalidomida Tecnigen?",
+            "2. Quais s\u00e3o os ajustes de dose recomendados para trombocitopenia ou neutropenia?",
+            "3. Quais s\u00e3o as principais contraindica\u00e7\u00f5es?",
+            "4. Quais precau\u00e7\u00f5es s\u00e3o recomendadas para evitar a teratogenicidade?",
+            "5. Como deve ser administrado o medicamento?"
+        ],
+        "ground_truths": [
+            "A Lenalidomida Tecnigen \u00e9 indicada para:\n\nMieloma m\u00faltiplo:\nTratamento de manuten\u00e7\u00e3o em pacientes adultos rec\u00e9m-diagnosticados ap\u00f3s transplante aut\u00f3logo de c\u00e9lulas-tronco.\nEm combina\u00e7\u00e3o com outros medicamentos (dexametasona, bortezomibe ou melfalano e prednisona) para pacientes ineleg\u00edveis ao transplante ou que j\u00e1 receberam pelo menos um tratamento anterior.\nLinfoma folicular: Em combina\u00e7\u00e3o com rituximabe, para pacientes adultos previamente tratados\u200b(Lenalidomida_Tecnigen_M\u2026).",
+            "Trombocitopenia:\nInterromper o tratamento quando as plaquetas ca\u00edrem para n\u00edveis cr\u00edticos (ex.: < 25 x 10\u2079/L).\nRetomar em n\u00edveis ajustados ao recuperar valores aceit\u00e1veis\u200b(Lenalidomida_Tecnigen_M\u2026).\nNeutropenia:\nInterromper o tratamento quando a contagem de neutr\u00f3filos cair abaixo de 0,5 x 10\u2079/L.\nConsiderar fatores de crescimento e retomar a dose reduzida quando os valores recuperarem\u200b(Lenalidomida_Tecnigen_M\u2026).\n",
+            "Hipersensibilidade \u00e0 lenalidomida ou aos excipientes.\nGravidez devido ao alto risco de teratogenicidade.\nMulheres com potencial para engravidar, salvo sob r\u00edgidas condi\u00e7\u00f5es do Programa de Preven\u00e7\u00e3o da Gravidez\u200b(Lenalidomida_Tecnigen_M\u2026).\n",
+            "Mulheres em idade f\u00e9rtil devem usar m\u00e9todos contraceptivos eficazes pelo menos 4 semanas antes de iniciar o tratamento e at\u00e9 4 semanas ap\u00f3s o t\u00e9rmino.\nTestes de gravidez regulares (mensais) supervisionados por um m\u00e9dico s\u00e3o exigidos mandat\u00f3rios.\nHomens tratados com lenalidomida devem usar preservativos durante rela\u00e7\u00f5es sexuais para prevenir exposi\u00e7\u00e3o ao feto, mesmo ap\u00f3s vasectomia\u200b(Lenalidomida_Tecnigen_M\u2026).\n",
+            "Via oral, no mesmo hor\u00e1rio diariamente, com ou sem alimentos.\nAs c\u00e1psulas devem ser ingeridas inteiras, sem serem abertas, partidas ou mastigadas.\nRecomenda-se cuidado ao retirar a c\u00e1psula do blister para evitar danos\u200b(Lenalidomida_Tecnigen_M\u2026).\n"
+        ]
+    },
+    "Ozempic 0.5mg": {
+        "questions": [
+            "1. Qual \u00e9 a indica\u00e7\u00e3o principal do Ozempic?\n",
+            "2. Como deve ser administrado o Ozempic?\n",
+            "3. Quais s\u00e3o as rea\u00e7\u00f5es adversas mais comuns associadas ao uso do Ozempic?\n",
+            "4. O Ozempic pode ser usado em pacientes com comprometimento renal ou hep\u00e1tico?\n",
+            "5. O que fazer em caso de omiss\u00e3o de uma dose?"
+        ],
+        "ground_truths": [
+            "O Ozempic \u00e9 indicado para o tratamento de adultos com diabetes mellitus tipo 2 insuficientemente controlada, como adjuvante \u00e0 dieta e ao exerc\u00edcio. Pode ser usado em monoterapia, quando a metformina \u00e9 inapropriada devido a intoler\u00e2ncia ou contraindica\u00e7\u00f5es, ou em combina\u00e7\u00e3o com outros medicamentos para diabetes\u200b(OzempicSoluc\u0327a\u0303o_injeta\u2026).\n\n",
+            "O Ozempic deve ser administrado por via subcut\u00e2nea no abd\u00f3men, coxa ou bra\u00e7o, uma vez por semana, a qualquer hora do dia, com ou sem alimentos. \u00c9 importante evitar a administra\u00e7\u00e3o intravenosa ou intramuscular\u200b(OzempicSoluc\u0327a\u0303o_injeta\u2026).\n\n",
+            "As rea\u00e7\u00f5es adversas mais frequentes s\u00e3o n\u00e1useas, diarreia e v\u00f3mitos. Estas rea\u00e7\u00f5es geralmente s\u00e3o leves a moderadas e de curta dura\u00e7\u00e3o, mas podem levar \u00e0 interrup\u00e7\u00e3o do tratamento em alguns casos\u200b(OzempicSoluc\u0327a\u0303o_injeta\u2026).\n\n",
+            "Sim, o Ozempic pode ser utilizado em pacientes com comprometimento renal ou hep\u00e1tico leve a moderado sem necessidade de ajuste de dose. No entanto, a experi\u00eancia \u00e9 limitada em casos graves, sendo necess\u00e1rio cuidado adicional nesses casos\u200b(OzempicSoluc\u0327a\u0303o_injeta\u2026).\n\n",
+            "Se uma dose for omitida, ela deve ser administrada o mais rapidamente poss\u00edvel dentro de um prazo de 5 dias. Caso tenham passado mais de 5 dias, a dose omitida deve ser ignorada e o paciente deve retomar a posologia normal no dia previamente estabelecido\u200b(OzempicSoluc\u0327a\u0303o_injeta\u2026).\n\n"
+        ]
+    },
+    "Paclitaxel Accord 6mg": {
+        "questions": [
+            "Quais s\u00e3o as indica\u00e7\u00f5es terap\u00eauticas do Paclitaxel Accord?",
+            "Quais os cuidados especiais na administra\u00e7\u00e3o do Paclitaxel Accord?\n",
+            "Quais s\u00e3o os principais efeitos adversos associados ao uso de Paclitaxel?\n",
+            "Como deve ser armazenado e manuseado o Paclitaxel Accord?\n",
+            "Quais s\u00e3o as contra-indica\u00e7\u00f5es para o uso de Paclitaxel Accord?\n\n"
+        ],
+        "ground_truths": [
+            "\u00c9 indicado para:\nCarcinoma do ov\u00e1rio (primeira e segunda linha de tratamento).\nCarcinoma da mama (adjuvante, localmente avan\u00e7ado ou metast\u00e1tico).\nCarcinoma avan\u00e7ado de c\u00e9lulas n\u00e3o pequenas do pulm\u00e3o.\nSarcoma de Kaposi relacionado com SIDA, resistente a antraciclinas liposs\u00f3micas\u200b(Paclitaxel_Accord_MGCon\u2026).\n",
+            "Deve ser administrado em unidades especializadas sob supervis\u00e3o de um oncologista qualificado. \u00c9 necess\u00e1ria pr\u00e9-medica\u00e7\u00e3o com corticosteroides, anti-histam\u00ednicos e antagonistas dos recetores H2 para prevenir rea\u00e7\u00f5es de hipersensibilidade. A administra\u00e7\u00e3o deve ser feita atrav\u00e9s de um filtro com membrana microporosa \u2264 0,22 \u00b5m\u200b(Paclitaxel_Accord_MGCon\u2026).",
+            "Efeitos comuns incluem:\nMielossupress\u00e3o (neutropenia, anemia, trombocitopenia).\nNeuropatia perif\u00e9rica.\nRea\u00e7\u00f5es de hipersensibilidade.\nArtralgias/mialgias.\nAlop\u00e9cia.\nEm casos raros, rea\u00e7\u00f5es graves como anafilaxia e colite pseudomembranosa\u200b(Paclitaxel_Accord_MGCon\u2026).\n",
+            "Armazenamento: N\u00e3o conservar acima de 25\u00b0C e proteger da luz. Ap\u00f3s dilui\u00e7\u00e3o, usar em at\u00e9 24 horas a 2-8\u00b0C (condi\u00e7\u00f5es ass\u00e9pticas controladas permitem maior flexibilidade).\nManuseio: Deve ser dilu\u00eddo em condi\u00e7\u00f5es ass\u00e9pticas por pessoal treinado. \u00c9 necess\u00e1rio uso de luvas e evitar contato com pele ou mucosas\u200b(Paclitaxel_Accord_MGCon\u2026).",
+            "Contra-indicado em:\nHipersensibilidade ao Paclitaxel ou excipientes (especialmente \u00f3leo de r\u00edcino polioxietilado 35).\nNeutropenia grave antes do in\u00edcio do tratamento (<1.500/mm\u00b3 para tumores s\u00f3lidos e <1.000/mm\u00b3 no sarcoma de Kaposi).\nDurante a amamenta\u00e7\u00e3o.\nEm casos de infec\u00e7\u00f5es graves e n\u00e3o controladas no sarcoma de Kaposi\u200b(Paclitaxel_Accord_MGCon\u2026)."
+        ]
+    },
+    "RInvoq 15mg": {
+        "questions": [
+            "Quais s\u00e3o as principais indica\u00e7\u00f5es terap\u00eauticas do RINVOQ?",
+            "Qual \u00e9 a posologia recomendada para o tratamento da artrite reumat\u00f3ide com RINVOQ?",
+            "Quais s\u00e3o as contraindica\u00e7\u00f5es do uso de RINVOQ?",
+            "Quais s\u00e3o as rea\u00e7\u00f5es adversas mais comuns associadas ao RINVOQ?",
+            "Quais cuidados devem ser tomados com pacientes acima de 65 anos ao usar RINVOQ?"
+        ],
+        "ground_truths": [
+            "O RINVOQ \u00e9 indicado para tratar:\nArtrite reumat\u00f3ide ativa moderada a grave em adultos.\nArtrite psori\u00e1tica ativa em adultos.\nEspondilartrite axial, incluindo formas n\u00e3o-radiogr\u00e1ficas e espondilite anquilosante ativa.\nDermatite at\u00f3pica moderada a grave em adultos e adolescentes com idade \u2265 12 anos.\nColite ulcerosa ativa moderada a grave.\nDoen\u00e7a de Crohn ativa moderada a grave\u200b(RinvoqComprimido_de_lib\u2026).",
+            "A dose recomendada depende da indica\u00e7\u00e3o terap\u00eautica \u00e9 de 15 mg uma vez por dia. A descontinua\u00e7\u00e3o deve ser considerada em casos sem resposta cl\u00ednica ap\u00f3s 16 semanas\u200b(RinvoqComprimido_de_lib\u2026).\n",
+            "O uso \u00e9 contraindicado em pacientes com:\nHipersensibilidade ao princ\u00edpio ativo ou excipientes.\nTuberculose ativa ou outras infec\u00e7\u00f5es graves.\nCompromisso hep\u00e1tico grave.\nGravidez\u200b(RinvoqComprimido_de_lib\u2026).\n",
+            "Rea\u00e7\u00f5es adversas frequentes incluem:\nInfec\u00e7\u00f5es do trato respirat\u00f3rio superior.\nAumento da creatina fosfocinase (CPK).\nAcne, herpes simples, e neutropenia.\nN\u00e1useas e aumento de enzimas hep\u00e1ticas (ALT e AST)\u200b(RinvoqComprimido_de_lib\u2026)",
+            "Esses pacientes t\u00eam maior risco de eventos adversos, incluindo MACE (eventos cardiovasculares major maiores), infec\u00e7\u00f5es graves e neoplasias malignas. Deve-se usar a dose m\u00ednima eficaz (15 mg por dia) e apenas se alternativas n\u00e3o forem adequadas\u200b(RinvoqComprimido_de_lib\u2026).\n"
+        ]
+    },
+    "Triticum 100 mg": {
+        "questions": [
+            "1. Qual \u00e9 a subst\u00e2ncia ativa do medicamento Triticum e para que \u00e9 indicado?",
+            "2. Quais as contraindica\u00e7\u00f5es principais do uso de Triticum?",
+            "3. Como deve ser administrado e qual \u00e9 a dosagem recomendada?",
+            "4. Quais s\u00e3o os efeitos adversos mais comuns do Triticum?",
+            "5. H\u00e1 restri\u00e7\u00f5es no uso de Triticum durante a gravidez ou amamenta\u00e7\u00e3o?"
+        ],
+        "ground_truths": [
+            "Resposta: A subst\u00e2ncia ativa \u00e9 o cloridrato de trazodona, e o medicamento \u00e9 indicado para o tratamento da depress\u00e3o\u200b(TriticumComprimido_reve\u2026).\n",
+            "Resposta: O Triticum \u00e9 contraindicado para:\nIndiv\u00edduos com hipersensibilidade \u00e0 subst\u00e2ncia ativa ou a qualquer excipiente.\nMenores de 18 anos.\nPacientes em recupera\u00e7\u00e3o de enfarte agudo do mioc\u00e1rdio.\nIndiv\u00edduos com intoxica\u00e7\u00e3o por \u00e1lcool ou hipn\u00f3ticos\u200b(TriticumComprimido_reve\u2026).",
+            "Resposta: A dose recomendada \u00e9 de 1-2 comprimidos, duas a tr\u00eas vezes por dia, preferencialmente ap\u00f3s as refei\u00e7\u00f5es, ajustada pelo m\u00e9dico de acordo com a gravidade da doen\u00e7a, peso, idade e estado geral do paciente. Para idosos ou pacientes fr\u00e1geis, a dose inicial recomendada \u00e9 de 100 mg/dia, administrada em doses fracionadas ou numa \u00fanica dose \u00e0 noite, podendo ser aumentada conforme a toler\u00e2ncia e efic\u00e1cia\u200b(TriticumComprimido_reve\u2026).\n",
+            "Resposta: Os efeitos adversos incluem:\nSonol\u00eancia, tontura, n\u00e1usea, boca seca e dores de cabe\u00e7a.\nEm casos graves, podem ocorrer idea\u00e7\u00e3o suicida, priapismo, s\u00edndrome serotonin\u00e9rgica e hipotens\u00e3o ortost\u00e1tica\u200b(TriticumComprimido_reve\u2026).\n",
+            "Resposta: Durante a gravidez, deve-se ter precau\u00e7\u00e3o ao prescrever Triticum. Quando usado at\u00e9 o momento do parto, \u00e9 recomendada a monitoriza\u00e7\u00e3o dos rec\u00e9m-nascidos para sintomas de abstin\u00eancia. Na amamenta\u00e7\u00e3o, como os dados sobre excre\u00e7\u00e3o no leite humano s\u00e3o limitados, a decis\u00e3o deve considerar os benef\u00edcios para a m\u00e3e e o beb\u00e9\u200b(TriticumComprimido_reve\u2026)."
         ]
     }
 }
