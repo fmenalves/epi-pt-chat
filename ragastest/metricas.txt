@@ -1,0 +1,90 @@
+
+Context Precision:
+
+Context Precision is a metric that measures the proportion of relevant chunks in the retrieved_contexts. 
+LLMContextPrecisionWithReference metric is can be used when you have both retrieved contexts and also reference 
+answer associated with a user_input. To estimate if a retrieved contexts is relevant or not this method uses 
+the LLM to compare each of the retrieved context or chunk present in retrieved_contexts with reference.
+
+ - LLM Based Context Precision With Reference
+   LLMContextPrecisionWithReference metric is can be used when you have both retrieved contexts and also reference 
+   answer associated with a user_input. To estimate if a retrieved contexts is relevant or not this method uses the 
+   LLM to compare each of the retrieved context or chunk present in retrieved_contexts with reference.
+
+ - LLM Based Context Precision Without Reference
+   LLMContextPrecisionWithoutReference metric can be used when you have both retrieved contexts and also reference 
+   contexts associated with a user_input. To estimate if a retrieved contexts is relevant or not this method uses 
+   the LLM to compare each of the retrieved context or chunk present in retrieved_contexts with response.
+
+ - Non LLM Based Context Precision With Reference
+   The NonLLMContextPrecisionWithReference metric is designed for scenarios where both retrieved contexts and 
+   reference contexts are available for a user_input. To determine if a retrieved context is relevant, 
+   this method compares each retrieved context or chunk in retrieved_contexts with every context in reference_contexts 
+   using a non-LLM-based similarity measure.
+
+
+
+Context Recal:
+
+Context Recall measures how many of the relevant documents (or pieces of information) were successfully retrieved. 
+It focuses on not missing important results. Higher recall means fewer relevant documents were left out. 
+In short, recall is about not missing anything important. Since it is about not missing anything, calculating 
+context recall always requires a reference to compare against.
+
+ - LLM Based Context Recall
+   LLMContextRecall is computed using user_input, reference and the retrieved_contexts, and the values 
+   range between 0 and 1, with higher values indicating better performance. This metric uses reference as 
+   a proxy to reference_contexts which also makes it easier to use as annotating reference contexts can be very 
+   time consuming. To estimate context recall from the reference, the reference is broken down into claims each 
+   claim in the reference answer is analyzed to determine whether it can be attributed to the retrieved context or not. 
+   In an ideal scenario, all claims in the reference answer should be attributable to the retrieved context.
+
+ - Non LLM Based Context Recall
+   NonLLMContextRecall metric is computed using retrieved_contexts and reference_contexts, and the values range 
+   between 0 and 1, with higher values indicating better performance. This metrics uses non llm string comparison 
+   metrics to identify if a retrieved context is relevant or not. You can use any non LLM based metrics as distance 
+   measure to identify if a retrieved context is relevant or not.
+
+
+
+Context Entity Recall:
+
+ContextEntityRecall metric gives the measure of recall of the retrieved context, based on the number of entities 
+present in both reference and retrieved_contexts relative to the number of entities present in the reference alone. 
+Simply put, it is a measure of what fraction of entities are recalled from reference. 
+This metric is useful in fact-based use cases like tourism help desk, historical QA, etc. 
+This metric can help evaluate the retrieval mechanism for entities, based on comparison with entities present in 
+reference, because in cases where entities matter, we need the retrieved_contexts which cover them.
+
+
+
+NoiseSensitivity:
+
+NoiseSensitivity measures how often a system makes errors by providing incorrect 
+responses when utilizing either relevant or irrelevant retrieved documents. 
+The score ranges from 0 to 1, with lower values indicating better performance. 
+Noise sensitivity is computed using the user_input, reference, response, and the retrieved_contexts.
+To estimate noise sensitivity, each claim in the generated response is examined to determine whether 
+it is correct based on the ground truth and whether it can be attributed to the relevant (or irrelevant) 
+etrieved context. Ideally, all claims in the answer should be supported by the relevant retrieved context.
+
+
+
+Response Relevancy:
+
+The ResponseRelevancy metric measures how relevant a response is to the user input. 
+Higher scores indicate better alignment with the user input, while lower scores are given if the response 
+is incomplete or includes redundant information.
+An answer is considered relevant if it directly and appropriately addresses the original question. 
+This metric focuses on how well the answer matches the intent of the question, without evaluating factual accuracy. 
+It penalizes answers that are incomplete or include unnecessary details.
+
+
+
+Faithfulness:
+
+The Faithfulness metric measures how factually consistent a response is with the retrieved context. 
+It ranges from 0 to 1, with higher scores indicating better consistency.
+A response is considered faithful if all its claims can be supported by the retrieved context.
+
+
