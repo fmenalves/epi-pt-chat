@@ -43,11 +43,11 @@ load_dotenv()
 
 #LLM_URL = os.getenv("LLM_URL")
 
-localModel = "llama3:8b"
+#localModel = "llama3:8b"
 localEmbedding = "nomic-embed-text:latest"
 
-llm = LangchainLLMWrapper(OllamaLLM(model=localModel))
-#llm = LangchainLLMWrapper(Ollama(model="llama3.1:70b",base_url=LLM_URL))
+#llm = LangchainLLMWrapper(OllamaLLM(model=localModel))
+llm = LangchainLLMWrapper(OllamaLLM(model="llama3.1:70b",base_url="https://gecadllm.fish-albacore.ts.net:8443/api"))
 embeddings = LangchainEmbeddingsWrapper(OllamaEmbeddings(model=localEmbedding))
 
 
@@ -212,7 +212,7 @@ metrics = {
 #            "Non LLM Context Recall": NonLLMContextRecall(),
             "Context Entities Recall": ContextEntityRecall(llm=llm),
             "Noise Sensitivity": NoiseSensitivity(llm=llm),
-#            "Response Relevancy": ResponseRelevancy(llm=llm,embeddings=embeddings),
+            "Response Relevancy": ResponseRelevancy(llm=llm,embeddings=embeddings),
             "Faithfulness": Faithfulness(llm=llm),
         }
 
