@@ -41,13 +41,13 @@ import re
 
 load_dotenv()
 
-#LLM_URL = os.getenv("LLM_URL")
+LLM_URL = os.getenv("LLM_URL")
 
 #localModel = "llama3:8b"
 localEmbedding = "nomic-embed-text:latest"
 
 #llm = LangchainLLMWrapper(OllamaLLM(model=localModel))
-llm = LangchainLLMWrapper(OllamaLLM(model="llama3.1:70b",base_url="https://gecadllm.fish-albacore.ts.net:8443/api"))
+llm = LangchainLLMWrapper(OllamaLLM(model="llama3.1:70b",base_url=LLM_URL))
 embeddings = LangchainEmbeddingsWrapper(OllamaEmbeddings(model=localEmbedding))
 
 

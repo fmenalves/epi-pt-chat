@@ -74,7 +74,7 @@ llm = Ollama(
 #embed_model_name = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 embed_model_name = "sentence-transformers/all-mpnet-base-v2"
 
-metadatasource = pd.read_csv("finaldbpt2.csv", delimiter=",")
+metadatasource = pd.read_csv("../finaldbpt2.csv", delimiter=",")
 
 
 
@@ -102,8 +102,6 @@ def generate_queries(query: str):
 
 
 def create_filters(products, metadatasource):
-
-    metadatasource = pd.read_csv("finaldbpt2.csv", delimiter=",")
 
     f = {"Nome_Comercial": [], "Substancia": []}
     for word in products.split(","):
