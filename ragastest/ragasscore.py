@@ -13,7 +13,7 @@ from ragas.metrics import (
 #    NonLLMContextPrecisionWithReference,
     LLMContextRecall,
 #    NonLLMContextRecall,
-#    FactualCorrectness,
+    FactualCorrectness,
     ContextEntityRecall,
     NoiseSensitivity,
     ResponseRelevancy,
@@ -25,8 +25,10 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_openai import ChatOpenAI
 from langchain_openai import OpenAIEmbeddings
 #from langchain_ollama.llms import OllamaLLM
-from langchain_community.embeddings import OllamaEmbeddings
-from langchain_community.llms import Ollama
+#from langchain_community.embeddings import OllamaEmbeddings
+#from langchain_community.llms import Ollama
+from langchain_ollama import OllamaEmbeddings
+from langchain_ollama import OllamaLLM
 
 from ragassupp import present_result
 from ragassupp import present_result_melhorado
@@ -42,11 +44,11 @@ load_dotenv()
 #LLM_URL = os.getenv("LLM_URL")
 
 localModel = "llama3:8b"
+localEmbedding = "nomic-embed-text:latest"
 
-llm = LangchainLLMWrapper(Ollama(model=localModel))
+llm = LangchainLLMWrapper(OllamaLLM(model=localModel))
 #llm = LangchainLLMWrapper(Ollama(model="llama3.1:70b",base_url=LLM_URL))
-
-#embeddings = LangchainEmbeddingsWrapper(OllamaEmbeddings(model="nomic-embed-text:latest"))
+embeddings = LangchainEmbeddingsWrapper(OllamaEmbeddings(model=localEmbedding))
 
 
 
