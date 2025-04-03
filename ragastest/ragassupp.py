@@ -74,7 +74,7 @@ llm = Ollama(
 #embed_model_name = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 embed_model_name = "sentence-transformers/all-mpnet-base-v2"
 
-metadatasource = pd.read_csv("../finaldbpt2.csv", delimiter=",")
+metadatasource = pd.read_csv("finaldbpt2.csv", delimiter=",")
 
 
 
