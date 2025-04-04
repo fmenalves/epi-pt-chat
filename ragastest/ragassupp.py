@@ -9,7 +9,8 @@ from qdrant_client.http.models import Filter, FieldCondition, MatchValue, MatchA
 from llama_index.core.node_parser import SentenceSplitter
 from llama_index.core import Settings
 from llama_index.embeddings.langchain import LangchainEmbedding
-from langchain_community.embeddings import HuggingFaceEmbeddings #from langchain.embeddings.huggingface import HuggingFaceEmbeddings
+#from langchain_community.embeddings import HuggingFaceEmbeddings #from langchain.embeddings.huggingface import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from llama_index.vector_stores.qdrant import QdrantVectorStore
 from llama_index.core import VectorStoreIndex
 import qdrant_client
@@ -240,7 +241,6 @@ def build_rag_pipeline(products, metadatasource):
     #    model="cross-encoder/ms-marco-MiniLM-L-2-v2", top_n=15
     # )
 
-    cohere_api_key = os.getenv("COHERE_API_KEY")
 
     reranker = CohereRerank(api_key=cohere_api_key, top_n=15)
         # assemble query engine
