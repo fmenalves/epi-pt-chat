@@ -30,8 +30,8 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_ollama import OllamaEmbeddings
 from langchain_ollama import OllamaLLM
 
-from ragastest.ragassupp import present_result
-from ragastest.ragassupp import present_result_melhorado
+from ragassupp import present_result
+from ragassupp import present_result_melhorado
 
 from dotenv import load_dotenv
 
@@ -132,6 +132,8 @@ def eval_sample(Pergunta, ground_truth, metrics):
     resposta = present_result_melhorado(Pergunta)
 #    resposta = present_result(Pergunta)
 
+    print("Resposta gerada!\nA avaliar a resposta...")
+
     sample = SingleTurnSample(
     user_input=Pergunta,
     reference=ground_truth,
@@ -150,7 +152,8 @@ def eval_sample(Pergunta, ground_truth, metrics):
         except Exception as e:
             results[metric_name] = f"Error: {e}"
 
-    return results
+    df = pd.DataFrame(list(results.items()), columns=["Métrica", "Resultado"])
+    return df
 
 
 
@@ -201,15 +204,27 @@ def evaluate_dataframe(df, metrics):
         row_results = evaluate_row(row, metrics)
         results.append(row_results)
     
-    res = pd.DataFrame(results)
+    result = pd.DataFrame(results)
     
-    medias = res.mean().round(3)
-    res.loc["Mean"] = medias
+    medias = result.mean().round(3)
+    result.loc["Mean"] = medias
     
-    return res
+    return result
 
 
 #def use_evaluate_dataset(df, metrics):
+#    """
+#    Esta função, é uma outra abordagem usando o ragas e embora não
+#    seja igual a evaluate_dataframe apresenta resultados
+#    praticamente iguais. Para além disso tem uma complexidade maior porque 
+#    diferentes valores nos parâmetros de run_config apresenta diferentes 
+#    valores no score.
+#    Embora ache que utilizar a função evaluate_dataframe seja melhor pelas 
+#    razões acima, deixo esta função comentada caso queira experimentar.
+#
+#
+#    """
+#
 #
 #    df = df.copy()
 #
@@ -256,45 +271,50 @@ def evaluate_dataframe(df, metrics):
 #
 #    return dataf
 
-
+eval_llm = LangchainLLMWrapper(llm)
+eval_embedding = LangchainEmbeddingsWrapper(embeddings)
+                               
 
 metrics = {
-            "Context Precision With Reference": LLMContextPrecisionWithReference(llm=LangchainLLMWrapper(llm)),
+            "Context Precision With Reference": LLMContextPrecisionWithReference(llm=eval_llm),
 #            "Context Precision Without Reference": LLMContextPrecisionWithoutReference(llm=llm),
 #            "Non LLM Context Precision With Reference": NonLLMContextPrecisionWithReference(),
-            "Context Recall": LLMContextRecall(llm=LangchainLLMWrapper(llm)),
+            "Context Recall": LLMContextRecall(llm=eval_llm),
 #            "Non LLM Context Recall": NonLLMContextRecall(),
-            "Context Entities Recall": ContextEntityRecall(llm=LangchainLLMWrapper(llm)),
-            "Noise Sensitivity": NoiseSensitivity(llm=LangchainLLMWrapper(llm)),
-            "Response Relevancy": ResponseRelevancy(llm=LangchainLLMWrapper(llm),embeddings=LangchainEmbeddingsWrapper(embeddings)),
-            "Faithfulness": Faithfulness(llm=LangchainLLMWrapper(llm)),
+            "Context Entities Recall": ContextEntityRecall(llm=eval_llm),
+            "Noise Sensitivity": NoiseSensitivity(llm=eval_llm),
+            "Response Relevancy": ResponseRelevancy(llm=eval_llm,embeddings=eval_embedding),
+            "Faithfulness": Faithfulness(llm=eval_llm),
         }
-
+## Estão três métricas comentadas pq nos exemplos que vi não eram usadas 
+## para avaliar sistmas RAG, mas caso considere relevante também podem ser usadas
  
-#llm=llm, embeddings=embeddings
+
+### Exemplos
+
+#Avaliar a resposta de uma determinada pergunta
+#per_res = pd.read_csv("ragastest/Perguntas e resposta.csv", delimiter=",")
+#result = eval_sample(per_res["Pergunta"][2], per_res["Resposta"][2],metrics = metrics)
+#print(result)
+
+
+#Avaliar as respostas de um conjunto de perguntas guardadas num csv
+#create_csv("dataset",per_res[3:7])
+dataset = pd.read_csv("ragastest/dataset.csv", delimiter=",")
+df_evaluation = evaluate_dataframe(df=dataset,metrics = metrics)
+print(df_evaluation)
+
+
+
+
+## Usando use_evaluate_dataset
 
 #metrics1 = [
 #            LLMContextPrecisionWithReference(), LLMContextRecall(), ContextEntityRecall(), NoiseSensitivity(), ResponseRelevancy(),Faithfulness(),
 #        ]
 
-
-# Exemplo
-
-#per_res = pd.read_csv("Perguntas e resposta.csv", delimiter=",")
-#result = eval_sample(per_res["Pergunta"][0], per_res["Resposta"][0],metrics = metrics)
-
-
-
-#create_csv("dataset",per_res[3:7])
-dataset = pd.read_csv("ragastest/dataset.csv", delimiter=",")
-df_evaluation = evaluate_dataframe(df=dataset,metrics = metrics)
-
-
 #df_evaluation1 = use_evaluate_dataset(df=dataset,metrics = metrics1)
+#print(df_evaluation1)
 
-
-#test3 = pd.read_csv("test3.csv", delimiter=",")
-
-#df_evaluation = evaluate_dataframe(test3,metrics = metrics) 
 
 
