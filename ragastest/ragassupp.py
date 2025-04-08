@@ -118,7 +118,7 @@ def create_filters(products, metadatasource):
                     for item in metadatasource["Nome Comercial"]
                 ]
             ]["Nome Comercial"].values
-            print(word, "comer")
+            #print(word, "comer")
             for v in val:
                 f["Nome_Comercial"].append(v)
         #  f.append(MetadataFilter(key="Nome_Comercial", value=val, operator="=="))
@@ -136,7 +136,7 @@ def create_filters(products, metadatasource):
             val = metadatasource[
                 metadatasource["Nome Comercial"].str.contains(word, case=False)
             ]["Nome Comercial"].values
-            print(word, "comer")
+            #print(word, "comer")
             for v in val:
                 # f[v] = "Nome_Comercial"
                 f["Nome_Comercial"].append(v)
