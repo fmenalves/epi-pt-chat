@@ -30,8 +30,8 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_ollama import OllamaEmbeddings
 from langchain_ollama import OllamaLLM
 
-from ragassupp import present_result
-from ragassupp import present_result_melhorado
+from ragastest.ragassupp import present_result
+from ragastest.ragassupp import present_result_melhorado
 
 from dotenv import load_dotenv
 
