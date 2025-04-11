@@ -12,6 +12,7 @@ llama-index-embeddings-langchain
 llama-index-vector-stores-qdrant  
 langchain
 langchain-community
+langchain-huggingface
 
 llama-index-postprocessor-cohere-rerank
 

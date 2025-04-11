@@ -3,7 +3,7 @@
 import os
 import pandas as pd
 
-from ragas import SingleTurnSample, EvaluationDataset
+from ragas import SingleTurnSample, evaluate, EvaluationDataset
 from ragas.llms import LangchainLLMWrapper
 from ragas.embeddings import LangchainEmbeddingsWrapper
 
@@ -25,47 +25,51 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_openai import ChatOpenAI
 from langchain_openai import OpenAIEmbeddings
 #from langchain_ollama.llms import OllamaLLM
-from langchain_community.embeddings import OllamaEmbeddings
-from langchain_community.llms import Ollama
+#from langchain_community.embeddings import OllamaEmbeddings
+#from langchain_community.llms import Ollama
+from langchain_ollama import OllamaEmbeddings
+from langchain_ollama import OllamaLLM
 
-from ragassupp import present_result
-from ragassupp import present_result_melhorado
+from ragastest.ragassupp import present_result
+from ragastest.ragassupp import present_result_melhorado
 
 from dotenv import load_dotenv
 
 from datasets import Dataset
 import ast
 import re
+#from ragas.run_config import RunConfig
 
 load_dotenv()
 
 #LLM_URL = os.getenv("LLM_URL")
 
-localModel = "llama3:8b"
+#localModel = "llama3:8b"
+#localEmbedding = "nomic-embed-text:latest"
 
-llm = LangchainLLMWrapper(Ollama(model=localModel))
-#llm = LangchainLLMWrapper(Ollama(model="llama3.1:70b",base_url=LLM_URL))
-
-#embeddings = LangchainEmbeddingsWrapper(OllamaEmbeddings(model="nomic-embed-text:latest"))
-
-
-
-#GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-
-#llm = LangchainLLMWrapper(ChatGoogleGenerativeAI(model="gemini-2.0-flash"))
-#embeddings = LangchainEmbeddingsWrapper(GoogleGenerativeAIEmbeddings(model="models/embedding-001"))
+#llm = LangchainLLMWrapper(OllamaLLM(model=localModel))
+#llm = LangchainLLMWrapper(OllamaLLM(model="llama3.1:70b",base_url=LLM_URL))
+#embeddings = LangchainEmbeddingsWrapper(OllamaEmbeddings(model=localEmbedding))
 
 
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+
+llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash")
+embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
 
 #OPEN_API_KEY = os.getenv("OPEN_API_KEY")
 
-#embeddings = LangchainEmbeddingsWrapper(OpenAIEmbeddings())
 #llm = LangchainLLMWrapper(ChatOpenAI(model="gpt-4o"))
+#embeddings = LangchainEmbeddingsWrapper(OpenAIEmbeddings())
 
+#run_conf = RunConfig(max_workers=5, timeout=100)
 
-#def clean_context(text):
+#def clean_text(text):
 #    text_clean = text.replace('\r\n', ' ').strip()  # Remover quebras de linha
+#    text_clean = re.sub(r"[•\[\]']", "", text_clean)
+#    text_clean = re.sub(r'[•#\*\uf0b7]', '', text_clean) # Remove os caracteres '#' e '•'
 #    text_clean= re.sub(r'\s+', ' ', text_clean)  # Remover múltiplos espaços
+#        
 #    return text_clean
 
 
@@ -95,7 +99,7 @@ def create_csv(name, per_res):
         answer = resposta["response"]
         context = resposta["context"]
 
-#        context = [clean_context(text) for text in context]
+#        context = [clean_text(text) for text in context]
 
         data["question"].append(pergunta)
 
@@ -128,6 +132,8 @@ def eval_sample(Pergunta, ground_truth, metrics):
     resposta = present_result_melhorado(Pergunta)
 #    resposta = present_result(Pergunta)
 
+    print("Resposta gerada!\nA avaliar a resposta...")
+
     sample = SingleTurnSample(
     user_input=Pergunta,
     reference=ground_truth,
@@ -146,7 +152,8 @@ def eval_sample(Pergunta, ground_truth, metrics):
         except Exception as e:
             results[metric_name] = f"Error: {e}"
 
-    return results
+    df = pd.DataFrame(list(results.items()), columns=["Métrica", "Resultado"])
+    return df
 
 
 
@@ -160,9 +167,9 @@ def evaluate_row(row, metrics):
 
     # Create a SingleTurnSample for every row
     sample = SingleTurnSample(
-        user_input=row['question'],
-        reference=row['ground_truth'],
-        retrieved_contexts=row['contexts'],
+        user_input = row['question'],
+        reference = row['ground_truth'],
+        retrieved_contexts = row['contexts'],
         response = row['answer']
     )
     
@@ -170,7 +177,9 @@ def evaluate_row(row, metrics):
     results = {}
     for metric_name, metric in metrics.items():
         try:
-            results[metric_name] = metric.single_turn_score(sample)
+            #res = float(metric.single_turn_score(sample))
+            #print(res)
+            results[metric_name] = float(metric.single_turn_score(sample))            
         except Exception as e:
             results[metric_name] = f"Error: {e}"
     
@@ -186,6 +195,7 @@ def evaluate_dataframe(df, metrics):
     Uses list to create the result dataframe
 
     """
+    df = df.copy()
 
     df["contexts"] = df["contexts"].apply(ast.literal_eval)
 
@@ -194,43 +204,117 @@ def evaluate_dataframe(df, metrics):
         row_results = evaluate_row(row, metrics)
         results.append(row_results)
     
-    res = pd.DataFrame(results)
+    result = pd.DataFrame(results)
     
-    medias = res.mean().round(3)
-    res.loc["Mean"] = medias
+    medias = result.mean().round(3)
+    result.loc["Mean"] = medias
     
-    return res
+    return result
 
+
+#def use_evaluate_dataset(df, metrics):
+#    """
+#    Esta função, é uma outra abordagem usando o ragas e embora não
+#    seja igual a evaluate_dataframe apresenta resultados
+#    praticamente iguais. Para além disso tem uma complexidade maior porque 
+#    diferentes valores nos parâmetros de run_config apresenta diferentes 
+#    valores no score.
+#    Embora ache que utilizar a função evaluate_dataframe seja melhor pelas 
+#    razões acima, deixo esta função comentada caso queira experimentar.
+#
+#
+#    """
+#
+#
+#    df = df.copy()
+#
+#    df["contexts"] = df["contexts"].apply(ast.literal_eval)
+#
+#    questions = []
+#    ground_truths = []
+#    answers = []
+#    contexts = []
+#
+#
+#    for _, row in df.iterrows():
+#
+##        clean_context = [clean_text(text) for text in row['contexts']]
+##        clean_question = clean_text(row['question'])
+##        clean_ground_truth = clean_text(row['ground_truth'])
+##        clean_answer = clean_text(row['answer'])
+#
+#        questions.append(row['question'])
+#        ground_truths.append(row['ground_truth'])
+#        contexts.append(row['contexts'])
+#        answers.append(row['answer'])
+#
+#
+#    # Define dataset
+#    data_samples = {
+#        'question': questions,
+#        'answer': answers,
+#        'contexts': contexts,
+#        'ground_truth': ground_truths
+#    }
+#    data_set = Dataset.from_dict(data_samples)
+#
+#
+#    score = evaluate(data_set, metrics=metrics, batch_size=4, llm = LangchainLLMWrapper(llm,run_config=run_conf), embeddings=LangchainEmbeddingsWrapper(embeddings, run_config=run_conf), run_config=run_conf)
+#
+#    dataf = score.to_pandas()
+#    float_cols = dataf.select_dtypes(include=['float64', 'float32']).columns
+#    mean_values = dataf[float_cols].mean().round(3)
+#    mean_row = {col: '--' if dataf[col].dtype == 'object' else mean_values[col] for col in dataf.columns}
+#    dataf.loc["Mean"] = mean_row
+#
+#
+#
+#    return dataf
+
+eval_llm = LangchainLLMWrapper(llm)
+eval_embedding = LangchainEmbeddingsWrapper(embeddings)
+                               
 
 metrics = {
-            "Context Precision With Reference": LLMContextPrecisionWithReference(llm=llm),
+            "Context Precision With Reference": LLMContextPrecisionWithReference(llm=eval_llm),
 #            "Context Precision Without Reference": LLMContextPrecisionWithoutReference(llm=llm),
 #            "Non LLM Context Precision With Reference": NonLLMContextPrecisionWithReference(),
-            "Context Recall": LLMContextRecall(llm=llm),
+            "Context Recall": LLMContextRecall(llm=eval_llm),
 #            "Non LLM Context Recall": NonLLMContextRecall(),
-            "Context Entities Recall": ContextEntityRecall(llm=llm),
-            "Noise Sensitivity": NoiseSensitivity(llm=llm),
-#            "Response Relevancy": ResponseRelevancy(llm=llm,embeddings=embeddings),
-            "Faithfulness": Faithfulness(llm=llm),
+            "Context Entities Recall": ContextEntityRecall(llm=eval_llm),
+            "Noise Sensitivity": NoiseSensitivity(llm=eval_llm),
+            "Response Relevancy": ResponseRelevancy(llm=eval_llm,embeddings=eval_embedding),
+            "Faithfulness": Faithfulness(llm=eval_llm),
         }
-
+## Estão três métricas comentadas pq nos exemplos que vi não eram usadas 
+## para avaliar sistmas RAG, mas caso considere relevante também podem ser usadas
  
 
+### Exemplos
 
-# Exemplo
+#Avaliar a resposta de uma determinada pergunta
+#per_res = pd.read_csv("ragastest/Perguntas e resposta.csv", delimiter=",")
+#result = eval_sample(per_res["Pergunta"][2], per_res["Resposta"][2],metrics = metrics)
+#print(result)
 
-#per_res = pd.read_csv("Perguntas e resposta.csv", delimiter=",")
-#result = eval_sample(per_res["Pergunta"][0], per_res["Resposta"][0],metrics = metrics)
 
-
-
+#Avaliar as respostas de um conjunto de perguntas guardadas num csv
 #create_csv("dataset",per_res[3:7])
-dataset = pd.read_csv("dataset.csv", delimiter=",")
-df_evaluation = evaluate_dataframe(dataset,metrics = metrics)
+dataset = pd.read_csv("ragastest/dataset.csv", delimiter=",")
+df_evaluation = evaluate_dataframe(df=dataset,metrics = metrics)
+print(df_evaluation)
 
 
-#test3 = pd.read_csv("test3.csv", delimiter=",")
 
-#df_evaluation = evaluate_dataframe(test3,metrics = metrics) 
+
+## Usando use_evaluate_dataset
+
+#metrics1 = [
+#            LLMContextPrecisionWithReference(), LLMContextRecall(), ContextEntityRecall(), NoiseSensitivity(), ResponseRelevancy(),Faithfulness(),
+#        ]
+
+#df_evaluation1 = use_evaluate_dataset(df=dataset,metrics = metrics1)
+#print(df_evaluation1)
+
 
 

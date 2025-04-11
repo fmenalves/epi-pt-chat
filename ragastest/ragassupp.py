@@ -9,7 +9,8 @@ from qdrant_client.http.models import Filter, FieldCondition, MatchValue, MatchA
 from llama_index.core.node_parser import SentenceSplitter
 from llama_index.core import Settings
 from llama_index.embeddings.langchain import LangchainEmbedding
-from langchain_community.embeddings import HuggingFaceEmbeddings #from langchain.embeddings.huggingface import HuggingFaceEmbeddings
+#from langchain_community.embeddings import HuggingFaceEmbeddings #from langchain.embeddings.huggingface import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from llama_index.vector_stores.qdrant import QdrantVectorStore
 from llama_index.core import VectorStoreIndex
 import qdrant_client
@@ -103,8 +104,6 @@ def generate_queries(query: str):
 
 def create_filters(products, metadatasource):
 
-    metadatasource = pd.read_csv("finaldbpt2.csv", delimiter=",")
-
     f = {"Nome_Comercial": [], "Substancia": []}
     for word in products.split(","):
         # print(word)
@@ -119,7 +118,7 @@ def create_filters(products, metadatasource):
                     for item in metadatasource["Nome Comercial"]
                 ]
             ]["Nome Comercial"].values
-            print(word, "comer")
+            #print(word, "comer")
             for v in val:
                 f["Nome_Comercial"].append(v)
         #  f.append(MetadataFilter(key="Nome_Comercial", value=val, operator="=="))
@@ -137,7 +136,7 @@ def create_filters(products, metadatasource):
             val = metadatasource[
                 metadatasource["Nome Comercial"].str.contains(word, case=False)
             ]["Nome Comercial"].values
-            print(word, "comer")
+            #print(word, "comer")
             for v in val:
                 # f[v] = "Nome_Comercial"
                 f["Nome_Comercial"].append(v)
@@ -180,7 +179,7 @@ def get_filters_qdrant(metadatasource, products):
         filters.append(
             FieldCondition(
                 key="Substancia",
-                match=MatchAny(any=list(set(f["Nome_Comercial"]))),
+                match=MatchAny(any=list(set(f["Substancia"]))),
             )
         )
         # return f
@@ -242,7 +241,6 @@ def build_rag_pipeline(products, metadatasource):
     #    model="cross-encoder/ms-marco-MiniLM-L-2-v2", top_n=15
     # )
 
-    cohere_api_key = os.getenv("COHERE_API_KEY")
 
     reranker = CohereRerank(api_key=cohere_api_key, top_n=15)
         # assemble query engine
