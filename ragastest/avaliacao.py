@@ -9,6 +9,7 @@ from ragastest.support_testes import process_query
 from ragastest.ragasscore import ragas_score
 
 
+###################  Esboço
 
 per_res = pd.read_csv("ragastest/Perguntas e resposta - Cópia de Folha1.csv", delimiter=",")
 
