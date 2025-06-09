@@ -33,7 +33,7 @@ load_dotenv()
 # Configurações de ambiente
 LLM_URL = os.getenv("LLM_URL")
 URI_BD = os.getenv("URI_BD")
-#COHERE_API_KEY = os.getenv("COHERE_API_KEY")
+COHERE_API_KEY = os.getenv("COHERE_API_KEY")
 INDEX_NAME = os.getenv("INDEX_NAME")
 
 # Inicialização do cliente Qdrant
@@ -407,7 +407,7 @@ def retrieve_index(client, llm, index_name):
 
     return index
     
-def create_query_engine(filters_qdrant, ret_similarity_top_k, rer_top_n):
+def create_query_engine(filters_qdrant, ret_similarity_top_k, rer_top_n, Cohere):
     """Cria um motor de consulta com base nos filtros fornecidos"""
     
     index = retrieve_index(client, llm, INDEX_NAME)
@@ -418,22 +418,30 @@ def create_query_engine(filters_qdrant, ret_similarity_top_k, rer_top_n):
         similarity_top_k=ret_similarity_top_k
     )
 
-    # Criar seletor de contextos como pós-processador
-    context_selector = ContextSelectorPostProcessor(
-        llm=llm,
-        prompt_template=CONTEXT_SELECTION,
-        top_n=rer_top_n  # Limitar aos 15 melhores contextos
-    )
+    if Cohere:
+
+        reranker = CohereRerank(api_key=COHERE_API_KEY, top_n=rer_top_n, model="rerank-v3.5") # model = "rerank-english-v3.0"
     
-    # Adicionar reranker para melhorar relevância
-    #reranker = CohereRerank(api_key=COHERE_API_KEY, top_n=15)
+        query_engine = RetrieverQueryEngine(
+            retriever=retriever,
+            node_postprocessors=[reranker],
+        )
+
+    else:
+
+        # Criar seletor de contextos como pós-processador
+        context_selector = ContextSelectorPostProcessor(
+            llm=llm,
+            prompt_template=CONTEXT_SELECTION,
+            top_n=rer_top_n  # Limitar aos 15 melhores contextos
+        )
     
-    # Montar motor de consulta
-    query_engine = RetrieverQueryEngine(
-        retriever=retriever,
-        node_postprocessors=[context_selector]
-    #    node_postprocessors=[reranker],
-    )
+        # Montar motor de consulta
+        query_engine = RetrieverQueryEngine(
+            retriever=retriever,
+            node_postprocessors=[context_selector]
+        #    node_postprocessors=[reranker],
+        )
     
     # Atualizar prompts do motor
     query_engine.update_prompts(
@@ -459,7 +467,7 @@ def get_medication_info(products):
     """Obtém informações detalhadas sobre medicamentos"""
     return llm.predict(MED_INFO, products=products)
 
-def retrieve_information(query, products, strength, enhance_query, ret_similarity_top_k, rer_top_n):
+def retrieve_information(query, products, strength, enhance_query, ret_similarity_top_k, rer_top_n, Cohere):
     """Recupera informações da base de conhecimento"""
     # Criar filtros para consulta
     if strength:  # demo
@@ -468,7 +476,7 @@ def retrieve_information(query, products, strength, enhance_query, ret_similarit
         filters_qdrant = get_qdrant_filters(products)
     
     # Criar motor de consulta
-    query_engine = create_query_engine(filters_qdrant, ret_similarity_top_k=ret_similarity_top_k, rer_top_n=rer_top_n)
+    query_engine = create_query_engine(filters_qdrant, ret_similarity_top_k, rer_top_n, Cohere)
     
     # Enriquecer consulta com contexto adicional
     med_info = get_medication_info(products)
@@ -506,7 +514,7 @@ def integrate_information(query, retrieved_info, med_info, reflection):
     )
 
 def agent_process_query(query: str, products: str = None, strength: str = None, enhance_query: bool = False,
-                       ret_similarity_top_k: int = 30, rer_top_n: int = 15) -> dict[str, object]:
+                       ret_similarity_top_k: int = 30, rer_top_n: int = 15, Cohere: bool = False) -> dict[str, object]:
     """Processa uma consulta completa através do sistema AgenticRAG"""
     start = timeit.default_timer()
     
@@ -517,7 +525,7 @@ def agent_process_query(query: str, products: str = None, strength: str = None, 
         print(f"Medicamentos detectados: {products}")
     
     # 2. Recuperar informações relevantes da base de conhecimento
-    retrieval_result = retrieve_information(query, products, strength, enhance_query, ret_similarity_top_k, rer_top_n)
+    retrieval_result = retrieve_information(query, products, strength, enhance_query, ret_similarity_top_k, rer_top_n, Cohere)
     
     # 3. Avaliar a resposta inicial
     reflection = evaluate_response(query, retrieval_result["response"])

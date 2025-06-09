@@ -227,7 +227,7 @@ def create_query_engine(filters_qdrant, ret_similarity_top_k, rer_top_n):
         similarity_top_k=ret_similarity_top_k
     )
 
-    reranker = CohereRerank(api_key=COHERE_API_KEY, top_n=rer_top_n)
+    reranker = CohereRerank(api_key=COHERE_API_KEY, top_n=rer_top_n, model="rerank-v3.5") # model = "rerank-english-v3.0"
     
     query_engine = RetrieverQueryEngine(
         retriever=retriever,
