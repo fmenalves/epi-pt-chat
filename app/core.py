@@ -1,21 +1,35 @@
 import os
 import timeit
+from typing import List, Optional
 
 import pandas as pd
 import qdrant_client
 from dotenv import load_dotenv
+from fastembed import SparseTextEmbedding, TextEmbedding
 
 # from langchain.embeddings.huggingface import HuggingFaceEmbeddings
 # from langchain_community.embeddings import HuggingFaceEmbeddings
-from llama_index.core import Settings, VectorStoreIndex, get_response_synthesizer
+# import QueryBundle
+from llama_index.core import (
+    Settings,
+    VectorStoreIndex,
+)
 from llama_index.core.node_parser import SentenceSplitter
-from llama_index.core.query_engine import RetrieverQueryEngine
-from llama_index.core.response_synthesizers import ResponseMode
-from llama_index.core.retrievers import VectorIndexRetriever
+from llama_index.core.postprocessor.types import BaseNodePostprocessor
+from llama_index.core.query_engine import CitationQueryEngine
+
+# Retrievers
+from llama_index.core.retrievers import (
+    BaseRetriever,
+)
+from llama_index.core.schema import NodeWithScore, QueryBundle, TextNode
+
+# import NodeWithScore
 from llama_index.embeddings.ollama import OllamaEmbedding
 from llama_index.llms.ollama import Ollama
 from llama_index.llms.openai import OpenAI
 from llama_index.vector_stores.qdrant import QdrantVectorStore
+from qdrant_client.models import NamedSparseVector, NamedVector
 
 from app import app
 from app.support import (
@@ -24,6 +38,99 @@ from app.support import (
     get_filters_qdrant_filtered,
     text_qa_template,
 )
+
+
+class CorrigirPageLabelPostprocessor(BaseNodePostprocessor):
+    def _postprocess_nodes(self, nodes, query_str=None):
+        for node in nodes:
+            if "page" in node.metadata and "page_label" not in node.metadata:
+                node.metadata["page_label"] = node.metadata["page"]
+        return nodes
+
+
+class CustomHybridRetriever(BaseRetriever):
+    def __init__(
+        self,
+        client,
+        index,
+        dense_model,
+        sparse_model,
+        collection_name: str,
+        qdrant_filters: Optional[dict] = None,
+        alpha: float = 0.7,
+        dense_vector_name: str = "all-MiniLM-L6-v2",
+        sparse_vector_name: str = "bm25",
+        top_k: int = 10,
+    ):
+        self.client = client
+        self.index = index
+        self.dense_model = dense_model
+        self.sparse_model = sparse_model
+        self.collection_name = collection_name
+        self.filters = qdrant_filters
+        self.alpha = alpha
+        self.dense_vector_name = dense_vector_name
+        self.sparse_vector_name = sparse_vector_name
+        self.top_k = top_k
+
+    def _retrieve(self, query_bundle: QueryBundle) -> List[NodeWithScore]:
+        query = query_bundle.query_str
+
+        # Gerar embeddings com fastembed
+        dense_vector = list(self.dense_model.embed([query]))[0]
+        sparse_vector = list(self.sparse_model.embed([query]))[0].as_object()
+
+        # Buscar resultados de cada um
+        dense_results = self.client.search(
+            collection_name=self.collection_name,
+            query_vector=NamedVector(name=self.dense_vector_name, vector=dense_vector),
+            query_filter=self.filters,
+            limit=self.top_k,
+            with_payload=True,
+        )
+
+        sparse_results = self.client.search(
+            collection_name=self.collection_name,
+            query_vector=NamedSparseVector(
+                name=self.sparse_vector_name, vector=sparse_vector
+            ),
+            query_filter=self.filters,
+            limit=self.top_k,
+            with_payload=True,
+        )
+
+        # Combinar scores
+        combined_scores = {}
+
+        def add_score(result, weight):
+            _id = str(result.id)
+            score = result.score * weight
+            if _id in combined_scores:
+                combined_scores[_id]["score"] += score
+            else:
+                combined_scores[_id] = {
+                    "score": score,
+                    "payload": result.payload,
+                }
+
+        for res in dense_results:
+            add_score(res, self.alpha)
+        for res in sparse_results:
+            add_score(res, 1 - self.alpha)
+
+        # Criar nodes
+        results = []
+        for _id, data in combined_scores.items():
+            text = data["payload"].get("text", "")
+            metadata = data["payload"].get("metadata", {})
+
+            if not text:
+                continue
+            node = TextNode(text=text, metadata=metadata, id_=_id)
+            results.append(NodeWithScore(node=node, score=data["score"]))
+
+        return sorted(results, key=lambda x: x.score, reverse=True)[: self.top_k]
+
 
 load_dotenv()
 # pip install cohere
@@ -36,6 +143,7 @@ index_name = os.getenv("INDEX_NAME")
 URI_BD = os.getenv("URI_BD")
 LLM_URL = os.getenv("LLM_URL")
 OPENAI_KEY = os.getenv("OPENAI_KEY")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 # client = OpenAI(
 #    # This is the default and can be omitted
 #    api_key=os.getenv("OPENAI_KEY"),
@@ -44,7 +152,7 @@ metadatasource = pd.read_csv("finaldbpt2.csv", delimiter=",")
 embed_model_name = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 embed_model_name = "sentence-transformers/all-mpnet-base-v2"
 
-client = qdrant_client.QdrantClient(URI_BD)
+client = qdrant_client.QdrantClient(url=URI_BD)
 
 
 def retrieve_index(client, llm, index_name):
@@ -64,10 +172,16 @@ def retrieve_index(client, llm, index_name):
     Settings.embed_model = embed_model
     # Settings.num_output = 512
     # Settings.context_window = 3900
-    Settings.chunk_size = 1024
-    Settings.chunk_overlap = 64
+    Settings.chunk_size = 512
+    Settings.chunk_overlap = 50
 
-    vector_store = QdrantVectorStore(client=client, collection_name=index_name)
+    # vector_store = QdrantVectorStore(client=client, collection_name=index_name)
+    vector_store = QdrantVectorStore(
+        client=client,
+        collection_name=index_name,
+        enable_hybrid=True,  # ✅ ativa suporte a híbrido
+        fastembed_sparse_model="Qdrant/bm25",  # modelo usado para sparse
+    )
     index = VectorStoreIndex.from_vector_store(
         vector_store,
         text_qa_template=text_qa_template,
@@ -85,11 +199,15 @@ def build_rag_pipeline(products, metadatasource, strength=None):
         # pass
         llm = Ollama(
             # model="llama3.1:70b",
-            model="llama3.3",
+            model="llama3.2",
+            # model="gemma2",
             base_url=LLM_URL,
             temperature=0,
-            request_timeout=60,
+            request_timeout=600,
+            context_window=4096,  # Adjust the context size as needed
         )
+    # llm = Groq(model="llama3-70b-8192", api_key=GROQ_API_KEY)
+
     print("Building index...")
     index = retrieve_index(client, llm, index_name)
     print("Constructing query engine...")
@@ -106,8 +224,10 @@ def build_rag_pipeline(products, metadatasource, strength=None):
 
     results = client.search(
         collection_name=index_name,
-        query_vector=[0.1] * 768,
+        #   query_vector=[0.1] * 768,
         limit=1,
+        # vector_name="all-MiniLM-L6-v2",  # ✅ IMPORTANTE
+        query_vector=("all-MiniLM-L6-v2", [0.1] * 384),  # ✅ nome do vetor e vetor
         query_filter=filters_qdrant,
     )
 
@@ -115,20 +235,56 @@ def build_rag_pipeline(products, metadatasource, strength=None):
     if len(results) == 0:
         print("issue with the product and data in the collection")
         filters_qdrant = None
-    retriever = VectorIndexRetriever(
-        vector_store_kwargs={"qdrant_filters": filters_qdrant},
+
+    dense_embedding_model = TextEmbedding("sentence-transformers/all-MiniLM-L6-v2")
+    sparse_embedding_model = SparseTextEmbedding("Qdrant/bm25")
+    retriever = CustomHybridRetriever(
+        client=client,
         index=index,
-        # filters=filters,
-        similarity_top_k=2,
+        dense_model=dense_embedding_model,
+        sparse_model=sparse_embedding_model,
+        collection_name="hybrid-search",
+        qdrant_filters=filters_qdrant,  # 🔥 aplica filtros!
+        alpha=0.7,  # 70% dense, 30% sparse
+        top_k=3,
     )
+    #  bm25_retriever = BM25Retriever.from_defaults(documents=[])
+
+    # bm25_retriever = BM25Retriever.from_defaults(
+    #      docstore=index.docstore, similarity_top_k=5
+    # )
+
+    # retriever = HybridRetriever(vector_retriever=vec_ret, bm25_retriever=bm25_retriever)
+
+    # define custom retriever
+    # keyword_retriever = KeywordTableSimpleRetriever(index=keyword_index)
+    # retriever = CustomHybridRetriever(vec_ret, bm25_retriever)
+    # retriever = QueryFusionRetriever(
+    #      [vec_ret, bm25_retriever],
+    #      similarity_top_k=5,
+    #     num_queries=1,  # set to 1 to disable query generation
+    #      mode="relative_score",  # or "reciprocal_rerank"
+    #     use_async=True,
+    # )
     # configure response synthesizer
     # reranker = CohereRerank(api_key=cohere_api_key, top_n=2)
-    response_synthesizer = get_response_synthesizer(response_mode=ResponseMode.COMPACT)
+    # response_synthesizer = get_response_synthesizer(response_mode=ResponseMode.COMPACT)
+
+    # Cria o sintetizador com citações ativadas
+    #   response_synthesizer = get_response_synthesizer(
+    ##       response_mode=ResponseMode.COMPACT, streaming=False
+    #  )
     # assemble query engine
-    query_engine = RetrieverQueryEngine(
+    query_engine = CitationQueryEngine.from_args(
+        index=index,  # ✅ necessário!
         retriever=retriever,
-        response_synthesizer=response_synthesizer,
-        #    reranker
+        #  response_synthesizer=response_synthesizer,
+        citation_chunk_size=512,
+        citation_chunk_overlap=20,
+        text_splitter=Settings.text_splitter,
+        node_postprocessors=[CorrigirPageLabelPostprocessor()],
+        # node_postprocessors=[reranker],
+        # node_postprocessors=[SimilarityPostprocessor(similarity_cutoff=0.7)],
         #  ],  # ,SimilarityPostprocessor(similarity_cutoff=0.7)],
     )
 
@@ -195,6 +351,7 @@ def present_result_filtered(query, product, dosagem):
     return {
         "response": answer.response,
         "metadata": answer.metadata,
-        "other": answer,
+        "contexts": answer.source_nodes,
+        "full": answer,
         "time": str(round(end - start)) + "s",
     }

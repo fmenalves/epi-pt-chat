@@ -16,10 +16,11 @@ def home():
         answer = present_result(msg)
 
         print(answer)
-        app.logger.info("Resposta: {}".format(answer))
+        # app.logger.info("Resposta: {}".format(answer))
 
         details = []
         for key, value in answer["metadata"].items():
+            print(key, value)
             details.append(
                 value["source"].split("/")[-1] + ": Página " + str(value["page"])
             )
@@ -44,18 +45,34 @@ def demo():
         answer = present_result_filtered(msg, medication, strength)
 
         print(answer)
-        app.logger.info("Resposta: {}".format(answer))
+        # app.logger.info("Resposta: {}".format(answer))
 
         details = []
-        for key, value in answer["metadata"].items():
-            details.append(
-                value["source"].split("/")[-1] + ": Página " + str(value["page"])
-            )
+        citations = []
+        for scored_node in answer["contexts"]:
+            print("scored_node", scored_node)
+            # metadata = scored_node.node.metadata
+            # source = metadata.get("source", "Desconhecido")
+            # page = metadata.get("page", "?")
+            node_id = scored_node.node_id
+            text = scored_node.text
+            #  source_id = text.split("")
+            citations.append(text)
+
+            citations = list(set(citations))
+        # print(citations)
+        # for key, value in answer["metadata"].items():
+        #    print(key, value)
+
+        #    details.append(
+        #        value["source"].split("/")[-1] + ": Página " + str(value["page"])
+        #    )
         return render_template(
             "demo.html",
             answer=answer["response"],
-            details=details,
+            details=citations,
             msg=msg,
+            time=answer["time"],
             selected_medicamento=medication,
         )
     return render_template(

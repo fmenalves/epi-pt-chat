@@ -67,14 +67,14 @@ def get_filters_qdrant(metadatasource, products):
     if len(f["Nome_Comercial"]) > 0:
         filters.append(
             FieldCondition(
-                key="Nome_Comercial",
+                key="metadata.Nome_Comercial",
                 match=MatchAny(any=list(set(f["Nome_Comercial"]))),
             )
         )
     if len(f["Substancia"]) > 0:
         filters.append(
             FieldCondition(
-                key="Substancia",
+                key="metadata.Substancia",
                 match=MatchAny(any=list(set(f["Substancia"]))),
             )
         )
@@ -89,12 +89,12 @@ def get_filters_qdrant_filtered(metadatasource, products, strength):
     filters = []
     print(products, strength)
     filters.append(
-        FieldCondition(key="Nome_Comercial", match=MatchAny(any=[products])),
+        FieldCondition(key="metadata.Nome_Comercial", match=MatchAny(any=[products])),
     )
 
     filters.append(
         FieldCondition(
-            key="Dosagem",
+            key="metadata.Dosagem",
             match=MatchAny(any=[strength]),
         )
     )

@@ -10,12 +10,10 @@ from llama_index.embeddings.ollama import OllamaEmbedding
 from qdrant_client.models import (
     Distance,
     PointStruct,
-    SparseVector,
     SparseVectorParams,
     VectorParams,
     VectorStruct,
 )
-from sklearn.feature_extraction.text import TfidfVectorizer
 
 # ==== CONFIG ====
 index_name = "MiscaroHybrid"
@@ -28,7 +26,7 @@ client = qdrant_client.QdrantClient("http://localhost:6333")
 metadatasource = pd.read_csv(csv_path, delimiter=",")
 print(metadatasource.head(4))
 # ==== TF-IDF SETUP (BM25-like sparse vector generation) ====
-vectorizer = TfidfVectorizer()
+# vectorizer = TfidfVectorizer()
 dense_embedding_model = TextEmbedding("sentence-transformers/all-MiniLM-L6-v2")
 bm25_embedding_model = SparseTextEmbedding("Qdrant/bm25")
 late_interaction_embedding_model = LateInteractionTextEmbedding(
@@ -54,10 +52,10 @@ def get_metadata(metadatasource, nfilename, file_path):
     }
 
 
-def generate_sparse_vector(text: str):
-    X = vectorizer.transform([text])
-    x_coo = X.tocoo()
-    return SparseVector(indices=x_coo.col.tolist(), values=x_coo.data.tolist())
+# def generate_sparse_vector(text: str):
+#    X = vectorizer.transform([text])
+#    x_coo = X.tocoo()
+#    return SparseVector(indices=x_coo.col.tolist(), values=x_coo.data.tolist())
 
 
 def build_index(file_list, client, index_name):
@@ -105,6 +103,12 @@ def build_index(file_list, client, index_name):
         bm25_embedding,
         doc,
     ) in enumerate(zip(dense_embeddings, bm25_embeddings, parsed_docs)):
+        metadata = doc.metadata.copy()
+        metadata["page"] = metadata.get("page", idx)
+        payload = {
+            "text": doc.page_content,
+            "metadata": metadata,
+        }
         point = PointStruct(
             id=idx,
             vector={
@@ -112,7 +116,7 @@ def build_index(file_list, client, index_name):
                 "bm25": bm25_embedding.as_object(),
                 # "colbertv2.0": late_interaction_embedding,
             },
-            payload={"document": doc},
+            payload=payload,
         )
         points.append(point)
 

@@ -1,5 +1,3 @@
-import os
-
 import pandas as pd
 import qdrant_client
 from langchain_community.document_loaders import PyPDFium2Loader
@@ -13,8 +11,10 @@ from llama_index.core.node_parser import SentenceSplitter
 from llama_index.embeddings.ollama import OllamaEmbedding
 from llama_index.vector_stores.qdrant import QdrantVectorStore
 
-os.environ["OPENAI_API_KEY"] = "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"
 index_name = "Coelho"  # nomic
+index_name = "Miscaro"  # nomic com text-splitter
+index_name = "Miscaro2"  # nomic com text-splitter de 512
+
 DATA_TRANSFORM = {
     "Ciplox 500mg": ["Ciplox MG", "500 mg"],
     "RInvoq 15mg": ["Rinvoq", "15 mg"],
@@ -31,7 +31,11 @@ client = qdrant_client.QdrantClient(
     "http://localhost:6333",
     # api_key="<qdrant-api-key>", # For Qdrant Cloud, None for local instance
 )
-
+##vc
+# client = qdrant_client.QdrantClient(
+#    "http://100.93.98.61:4444",
+#    # api_key="<qdrant-api-key>", # For Qdrant Cloud, None for local instance
+# )
 
 embed_model_name = "nomic-embed-text"
 metadatasource = pd.read_csv("../finaldbpt2.csv", delimiter=",")
@@ -70,12 +74,12 @@ def build_index_big(file_list, client, index_name):
     )
     embed_model = ollama_embedding
 
-    text_splitter = SentenceSplitter(chunk_size=1024, chunk_overlap=64)
+    text_splitter = SentenceSplitter(chunk_size=512, chunk_overlap=50)
 
     Settings.text_splitter = text_splitter
     Settings.embed_model = embed_model
-    Settings.chunk_size = 1024
-    Settings.chunk_overlap = 64
+    Settings.chunk_size = 512
+    Settings.chunk_overlap = 50
 
     vector_store = QdrantVectorStore(client=client, collection_name=index_name)
 
@@ -105,7 +109,7 @@ def build_index_big(file_list, client, index_name):
         try:
             index = VectorStoreIndex.from_documents(
                 documents,
-                # transformations=[text_splitter],
+                transformations=[text_splitter],
                 storage_context=storage_context,
             )
         except Exception as e:
