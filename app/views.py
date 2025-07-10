@@ -40,8 +40,10 @@ def demo():
         medication = request.form.get("medicamento")
         print(msg)
         strength = request.form.get("dosagem")
+        method = request.form.get("msg", "hybrid")
 
         app.logger.info("Pergunta: {}".format(msg))
+
         answer = present_result_filtered(msg, medication, strength)
 
         print(answer)
