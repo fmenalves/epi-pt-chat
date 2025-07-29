@@ -279,7 +279,7 @@ class ContextSelectorPostProcessor(BaseNodePostprocessor):
             f"FRAGMENTO {i}: {txt}" for i, txt in sorted(fragments_one_line.items())
 )
 
-        print(fragments_block)
+        #print(fragments_block)
 
         
         
@@ -292,8 +292,8 @@ class ContextSelectorPostProcessor(BaseNodePostprocessor):
                 top_n=self._top_n
             )
 
-            print("Resposta do LLM para seleção de contextos:")
-            print(response)
+            #print("Resposta do LLM para seleção de contextos:")
+            #print(response)
             
             # Processar a resposta para obter os índices
             selected_indices = []
@@ -310,7 +310,7 @@ class ContextSelectorPostProcessor(BaseNodePostprocessor):
             # Limitar ao número desejado
             selected_indices = selected_indices[:self._top_n]
 
-            print(selected_indices)
+            #print(selected_indices)
             
             # Se não conseguirmos extrair índices válidos, use os primeiros top_n
             if not selected_indices:
@@ -417,7 +417,7 @@ def extract_medications(query):
 def get_medication_info(products):
     """Obtém informações detalhadas sobre medicamentos"""
     med_info = llm.predict(MED_INFO, products=products)
-    print(med_info)
+    #print(med_info)
     return med_info
 
 def retrieve_information(query, client, products, strength, metadatasource, enhance_query, ret_similarity_top_k, rer_top_n, Cohere):
@@ -443,8 +443,8 @@ def retrieve_information(query, client, products, strength, metadatasource, enha
     # Extrair contextos
     contexts = [node.text for node in result.source_nodes]
 
-    print("Response from query engine:")
-    print(result.response)
+    #print("Response from query engine:")
+    #print(result.response)
     
     return {
         "response": result.response,
@@ -456,8 +456,8 @@ def retrieve_information(query, client, products, strength, metadatasource, enha
 def evaluate_response(query, response):
     """Avalia a qualidade da resposta"""
     reflection = llm.predict(REFLECTION, query=query, response=response)
-    print("Reflection on Response:")
-    print(reflection)
+    #print("Reflection on Response:")
+    #print(reflection)
     
     return reflection
 
@@ -470,8 +470,8 @@ def integrate_information(query, retrieved_info, med_info, reflection):
         med_info=med_info,
         reflection=reflection
     )
-    print("Integrated Response:")
-    print(integrate)
+    #print("Integrated Response:")
+    #print(integrate)
     
     return integrate
 
