@@ -65,6 +65,12 @@ def present_result_filtered(query, product, dosagem, method="hybrid"):
             metadatasource=metadatasource,
             strength=dosagem,
         )
+    
+    elif method == "full_hybrid":
+        rag_chain = build_rag_pipeline(
+            products=product, metadatasource=metadatasource, strength=dosagem
+        )
+
     else:
         return "Error unknown method"
     # nquery = (
