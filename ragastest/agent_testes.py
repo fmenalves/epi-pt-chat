@@ -11,6 +11,7 @@ from llama_index.core import Settings, VectorStoreIndex, PromptTemplate
 from llama_index.core.node_parser import SentenceSplitter
 from llama_index.embeddings.langchain import LangchainEmbedding
 from langchain_huggingface import HuggingFaceEmbeddings
+from llama_index.embeddings.ollama import OllamaEmbedding
 from llama_index.vector_stores.qdrant import QdrantVectorStore
 import qdrant_client
 from qdrant_client.http.models import Filter, FieldCondition, MatchValue, MatchAny
@@ -27,6 +28,8 @@ from typing import List
 from llama_index.core.postprocessor.types import BaseNodePostprocessor
 from llama_index.core.schema import NodeWithScore, QueryBundle
 
+import re
+
 # Configuração inicial
 load_dotenv()
 
@@ -37,7 +40,7 @@ COHERE_API_KEY = os.getenv("COHERE_API_KEY")
 INDEX_NAME = os.getenv("INDEX_NAME")
 
 # Inicialização do cliente Qdrant
-client = qdrant_client.QdrantClient(URI_BD)
+#client = qdrant_client.QdrantClient(URI_BD)
 
 # Inicialização do modelo LLM
 llm = Ollama(
@@ -51,7 +54,7 @@ llm = Ollama(
 EMBED_MODEL_NAME = "sentence-transformers/all-mpnet-base-v2"
 
 # Carregamento dos metadados dos medicamentos
-metadatasource = pd.read_csv("finaldbpt2.csv", delimiter=",")
+#metadatasource = pd.read_csv("finaldbpt2.csv", delimiter=",")
 
 # Templates de prompts
 
@@ -86,24 +89,14 @@ MED_INFO = PromptTemplate(
 
 # Template para seleção de contextos
 CONTEXT_SELECTION = PromptTemplate(
-    
-    "You are a specialized pharmacist tasked with identifying the most relevant information fragments for medication-related queries.\n\n"
-    "Instructions:\n"
-    "1. Evaluate each provided information fragment against the user query.\n"
-    "2. Identify the top {top_n} fragments most relevant to answering the query accurately.\n"
-    "3. Use the following evaluation criteria:\n"
-    "- **Direct relevance to answer the query**"
-    "- Direct relevance to the medications or substances mentioned in the query\n"
-    "- Relevant regulatory and technical details\n"
-    "- Recency and technical accuracy of the information\n"
-    "- Prefer specific information over generic details\n"
-    "4. Respond with a comma-separated list of the indices of the top {top_n} fragments, ordered from most to less relevant.\n"
-    "5. Do NOT add any explanatory text or formatting—only the list of numbers.\n\n"
-    "Input:\n"
-    "User query: {query}\n"
-    "Information fragments:\n"
-    "{fragments}\n\n"
-    "Output:"
+
+    "The fragments information is"
+    " below.\n---------------------\n{fragments}\n---------------------\nUsing"
+    " the fragments information select the {top_n} fragments that are most relevant to"
+    " the question: {query}\n"
+    "Return only the indices of the selected fragments, separated by"
+    " commas. Do not include any punctuation at the end, explanations, or extra formatting.\n"
+    "Answer:\n"
     
 )
 
@@ -112,7 +105,7 @@ TEXT_QA = PromptTemplate(
 
     "You are a question-answering assistant specialized in processing context documents.\n\n"
     "Instructions:\n"
-    "1. Use **only** the context provided to answer the question and not prior knoledge.\n"
+    "1. Use **only** the context provided to answer the question and not prior knowledge.\n"
     "2. If the context isn't helpful, you may use your own knowledge to respond.\n"
     "3. Always answer in **European Portuguese**, avoiding vocabulary or expressions specific to Brazilian Portuguese.\n"
     "4. If the answer is based on any part of the context, cite the source (e.g., document title or reference).\n"
@@ -198,7 +191,7 @@ INTEGRATE = PromptTemplate(
 
 
         
-def create_base_filters(products, metadatasource):
+def create_filters(products, metadatasource):
     """Cria filtros básicos para nomes comerciais e substâncias"""
     filters = {"Nome_Comercial": [], "Substancia": []}
     
@@ -248,10 +241,10 @@ def create_base_filters(products, metadatasource):
     
     return filters
 
-def get_qdrant_filters(metadatasource, products):
+def get_filters_qdrant(metadatasource, products):
     """Converte filtros básicos para o formato aceito pelo Qdrant"""
     filters = []
-    base_filters = create_base_filters(products=products, metadatasource=metadatasource)
+    base_filters = create_filters(products=products, metadatasource=metadatasource)
     
     if len(base_filters["Nome_Comercial"]) > 0:
         filters.append(
@@ -291,6 +284,41 @@ def get_filters_qdrant_filtered(products, strength):
         return Filter(should=[])
     if len(filters) > 0:
         return Filter(must=filters)
+
+
+def to_single_line(text: str, max_chars: int | None = None) -> str:
+    """
+    Converte o conteúdo de um nó para UMA única linha legível.
+    - Desfaz hifenização em quebra de linha
+    - Remove linhas que são só números (artefactos de página)
+    - Normaliza bullets
+    - Converte quebras de linha em espaços e compacta múltiplos espaços
+    - (Opcional) trunca a N caracteres
+    """
+    if not isinstance(text, str):
+        text = str(text)
+    t = text.replace("\r", "")
+
+    # desfaz hifenização em quebra de linha: palavra-\nseguinte -> palavra seguinte
+    t = re.sub(r"(\w)-\s*\n\s*(\w)", r"\1 \2", t)
+
+    # remove linhas que são só números (nºs de página)
+    t = re.sub(r"^\s*\d{1,3}\s*$", "", t, flags=re.M)
+
+    # normaliza bullets
+    t = t.replace("", "- ").replace("•", "- ")
+
+    # converte quebras de linha para espaços
+    t = re.sub(r"\s*\n\s*", " ", t)
+
+    # compacta espaços
+    t = re.sub(r"[ \t]{2,}", " ", t).strip()
+
+    # truncagem opcional
+    if max_chars is not None and len(t) > max_chars:
+        t = t[:max_chars].rstrip() + " …"
+
+    return t
 
 
 class ContextSelectorPostProcessor(BaseNodePostprocessor):
@@ -333,23 +361,31 @@ class ContextSelectorPostProcessor(BaseNodePostprocessor):
             return nodes
             
         # Extrair textos dos nós para avaliação
-        node_texts = []
-        for i, node in enumerate(nodes):
-            # Limitar o tamanho do texto para evitar exceder limites de tokens
-            display_text = node.text
-            node_texts.append(f"FRAGMENTO {i}:\n{display_text}")
+        fragments_raw = {i: node.text for i, node in enumerate(nodes)}
         
-        # Juntar todos os fragmentos em um único texto
-        all_fragments = "\n\n".join(node_texts)
+        fragments_one_line = {i: to_single_line(txt, max_chars=None)  # ajusta max_chars se quiseres
+                      for i, txt in fragments_raw.items()}
+        
+        
+        fragments_block = "\n".join(
+            f"FRAGMENTO {i}: {txt}" for i, txt in sorted(fragments_one_line.items())
+)
+
+        #print(fragments_block)
+
+        
         
         try:
             # Obter classificação do LLM usando o template de prompt
             response = self._llm.predict(
                 self._prompt_template,
                 query=query_str,
-                fragments=all_fragments,
+                fragments=fragments_block,
                 top_n=self._top_n
             )
+
+            #print("Resposta do LLM para seleção de contextos:")
+            #print(response)
             
             # Processar a resposta para obter os índices
             selected_indices = []
@@ -361,12 +397,18 @@ class ContextSelectorPostProcessor(BaseNodePostprocessor):
                 except ValueError:
                     continue
             
+            #print(selected_indices)
+            
             # Limitar ao número desejado
             selected_indices = selected_indices[:self._top_n]
+
+            #print(selected_indices)
             
             # Se não conseguirmos extrair índices válidos, use os primeiros top_n
             if not selected_indices:
                 return nodes[:self._top_n]
+            
+            #print([nodes[idx] for idx in selected_indices])
             
             # Retornar os nós selecionados na ordem de relevância
             return [nodes[idx] for idx in selected_indices]
@@ -389,7 +431,8 @@ def retrieve_index(client, llm, index_name):
     Settings.text_splitter = text_splitter
 
     ## embed_model = OpenAIEmbedding(embed_batch_size=10)
-    embed_model = HuggingFaceEmbeddings(model_name=EMBED_MODEL_NAME)
+    #embed_model = HuggingFaceEmbeddings(model_name=EMBED_MODEL_NAME)
+    embed_model = OllamaEmbedding(model_name="nomic-embed-text")
     Settings.llm = llm
     Settings.embed_model = embed_model
     ## Settings.num_output = 512
@@ -407,7 +450,7 @@ def retrieve_index(client, llm, index_name):
 
     return index
     
-def create_query_engine(filters_qdrant, ret_similarity_top_k, rer_top_n, Cohere):
+def create_query_engine(client, filters_qdrant, ret_similarity_top_k, rer_top_n, Cohere):
     """Cria um motor de consulta com base nos filtros fornecidos"""
     
     index = retrieve_index(client, llm, INDEX_NAME)
@@ -432,7 +475,7 @@ def create_query_engine(filters_qdrant, ret_similarity_top_k, rer_top_n, Cohere)
         # Criar seletor de contextos como pós-processador
         context_selector = ContextSelectorPostProcessor(
             llm=llm,
-            prompt_template=CONTEXT_SELECTION,
+            prompt_template =CONTEXT_SELECTION,
             top_n=rer_top_n  # Limitar aos 15 melhores contextos
         )
     
@@ -465,18 +508,20 @@ def extract_medications(query):
 
 def get_medication_info(products):
     """Obtém informações detalhadas sobre medicamentos"""
-    return llm.predict(MED_INFO, products=products)
+    med_info = llm.predict(MED_INFO, products=products)
+    #print(med_info)
+    return med_info
 
-def retrieve_information(query, products, strength, enhance_query, ret_similarity_top_k, rer_top_n, Cohere):
+def retrieve_information(query, client, products, strength, metadatasource, enhance_query, ret_similarity_top_k, rer_top_n, Cohere):
     """Recupera informações da base de conhecimento"""
     # Criar filtros para consulta
     if strength:  # demo
         filters_qdrant = get_filters_qdrant_filtered(products, strength)
     else:  # not demo
-        filters_qdrant = get_qdrant_filters(products)
+        filters_qdrant = get_filters_qdrant(metadatasource = metadatasource, products = products)
     
     # Criar motor de consulta
-    query_engine = create_query_engine(filters_qdrant, ret_similarity_top_k, rer_top_n, Cohere)
+    query_engine = create_query_engine(client, filters_qdrant, ret_similarity_top_k, rer_top_n, Cohere)
     
     # Enriquecer consulta com contexto adicional
     med_info = get_medication_info(products)
@@ -489,6 +534,9 @@ def retrieve_information(query, products, strength, enhance_query, ret_similarit
     
     # Extrair contextos
     contexts = [node.text for node in result.source_nodes]
+
+    #print("Response from query engine:")
+    #print(result.response)
     
     return {
         "response": result.response,
@@ -500,20 +548,26 @@ def retrieve_information(query, products, strength, enhance_query, ret_similarit
 def evaluate_response(query, response):
     """Avalia a qualidade da resposta"""
     reflection = llm.predict(REFLECTION, query=query, response=response)
+    #print("Reflection on Response:")
+    #print(reflection)
     
     return reflection
 
 def integrate_information(query, retrieved_info, med_info, reflection):
     """Integra todas as informações em uma resposta final"""
-    return llm.predict(
+    integrate = llm.predict(
         INTEGRATE,
         query=query,
         retrieved_info=retrieved_info,
         med_info=med_info,
         reflection=reflection
     )
+    #print("Integrated Response:")
+    #print(integrate)
+    
+    return integrate
 
-def agent_process_query(query: str, products: str = None, strength: str = None, enhance_query: bool = False,
+def agent_process_query(query: str, client, metadatasource, products: str = None, strength: str = None, enhance_query: bool = False,
                        ret_similarity_top_k: int = 30, rer_top_n: int = 15, Cohere: bool = False) -> dict[str, object]:
     """Processa uma consulta completa através do sistema AgenticRAG"""
     start = timeit.default_timer()
@@ -525,7 +579,7 @@ def agent_process_query(query: str, products: str = None, strength: str = None, 
         print(f"Medicamentos detectados: {products}")
     
     # 2. Recuperar informações relevantes da base de conhecimento
-    retrieval_result = retrieve_information(query, products, strength, enhance_query, ret_similarity_top_k, rer_top_n, Cohere)
+    retrieval_result = retrieve_information(query, client, products, strength, metadatasource, enhance_query, ret_similarity_top_k, rer_top_n, Cohere)
     
     # 3. Avaliar a resposta inicial
     reflection = evaluate_response(query, retrieval_result["response"])
@@ -558,18 +612,22 @@ def agent_process_query(query: str, products: str = None, strength: str = None, 
 # Exemplo de uso
 if __name__ == "__main__":
     # Exemplo de consulta
+
+    metadatasource = pd.read_csv("finaldbpt2.csv", delimiter=",")
+    client = qdrant_client.QdrantClient(URI_BD)
+
     query = "Quais cuidados devem ser tomados com pacientes acima de 65 anos ao usar RINVOQ?"
-    
+
     print("Processando consulta...")
-    result = agent_process_query(query, "Rinvoq", "15 mg")
-    
+    result = agent_process_query(query, client, metadatasource,"Rinvoq", "15 mg", ret_similarity_top_k=10, rer_top_n=2)
+
     print("\n=== RESULTADO ===")
     print(f"Consulta: {result['query']}")
     print(f"Medicamentos detectados: {result['products_detected']}")
     print(f"Tempo de execução: {result['execution_time']}")
     print("\nResposta:")
     print(result['response'])
-    
+
     print("\n=== FONTES ===")
     for i, context in enumerate(result['contexts'][:3], 1):
         print(f"\nFonte {i}:")

@@ -6,8 +6,10 @@ from app import client
 from app.hybrid import build_rag_pipeline as hrag
 from app.initial_rag import build_rag_pipeline as irag
 from app.support import generate_queries
+from app.agentic import agent_process_query as arag
 
 metadatasource = pd.read_csv("finaldbpt2.csv", delimiter=",")
+
 
 
 def present_result(query):
@@ -49,13 +51,13 @@ def present_result_filtered(query, product, dosagem, method="hybrid"):
             strength=dosagem,
         )
     elif method == "agentic":
-        rag_chain = build_rag_pipeline(
-            products=product, metadatasource=metadatasource, strength=dosagem
-        )
-    elif method == "full_hybrid":
-        rag_chain = build_rag_pipeline(
-            products=product, metadatasource=metadatasource, strength=dosagem
-        )
+        rag_chain = arag(
+            query=query,
+            client=client,
+            metadatasource=metadatasource,
+            products=product,
+            strength=dosagem) 
+
     elif method == "initial":
         rag_chain = irag(
             client=client,
